@@ -1,0 +1,101 @@
+# ============================================================================
+#  SMP Essentials configuration
+#  Every option is documented. After editing, run /smpe reload (or restart).
+# ============================================================================
+
+amethyst-tools:
+  # Master switch for the Amethyst pickaxe and axe abilities.
+  enabled: true
+  # Register the crafting recipes (1 amethyst shard + 2 netherite ingots + sticks,
+  # in the vanilla diamond-tool layout). If false, tools are only obtainable via
+  # /smpe give.
+  recipes-enabled: true
+  # Play the amethyst block chime when an Amethyst tool is used to mine and when
+  # a player selects one on their hotbar.
+  sound-effects: true
+
+  pickaxe:
+    # Apply durability damage to the tool for the extra blocks broken in the 3x3.
+    # Unbreaking enchantments are respected.
+    damage-tool: true
+
+  axe:
+    # Apply durability damage for each extra log felled. Unbreaking is respected.
+    damage-tool: true
+    # Safety cap on how many logs a single break may fell (prevents lag on huge
+    # custom/jungle trees).
+    max-logs: 256
+    # Also break the tree's leaves when it is felled. Off by default (vanilla
+    # leaves decay on their own).
+    break-leaves: false
+
+combat:
+  # Master switch for the anti-combat-log system.
+  enabled: true
+  # How long (in seconds) a player stays "in combat" after being hit. Each new
+  # hit from another player resets this back to the full duration.
+  duration-seconds: 20
+  # Tag players when they fight other players (recommended true).
+  tag-on-pvp: true
+  # Also tag players when they take damage from hostile mobs. Off by default so
+  # players are only punished for logging during PvP.
+  tag-on-mob-damage: false
+  # When a tagged player disconnects, drop their experience as orbs at the
+  # logout location (in addition to their items).
+  drop-experience: true
+  # Block the commands below while a player is in combat.
+  block-commands: true
+  # Commands (without the leading slash) that cannot be used while in combat.
+  # Matching is by the root command, so "tpa" also blocks "/tpa Steve".
+  blocked-commands:
+    - tp
+    - tpa
+    - tpaccept
+    - tpahere
+    - tpyes
+    - teleport
+    - home
+    - sethome
+    - homes
+    - spawn
+    - warp
+    - warps
+    - rtp
+    - wild
+    - randomtp
+    - back
+    - lobby
+    - hub
+    - server
+  # Teleport causes that are cancelled while a player is in combat. This is a
+  # catch-all that stops teleports from ANY plugin regardless of command name.
+  # ENDER_PEARL and CHORUS_FRUIT are intentionally NOT listed, so those remain
+  # usable in a fight. Valid values are org.bukkit PlayerTeleportEvent.TeleportCause
+  # names, e.g. COMMAND, PLUGIN, SPECTATE, ENDER_PEARL, CHORUS_FRUIT, END_PORTAL.
+  blocked-teleport-causes:
+    - COMMAND
+    - PLUGIN
+    - SPECTATE
+  # When a player who combat-logged reconnects, teleport them to the world spawn.
+  teleport-to-spawn-on-rejoin: true
+  # Show a combat countdown on the action bar.
+  action-bar: true
+
+messages:
+  # &-style color codes are supported (translated to Adventure components).
+  prefix: "&5&lSMP &8» &r"
+  no-permission: "&cYou don't have permission to do that."
+  reload-success: "&aConfiguration reloaded."
+  tool-given: "&aGave a &5{tool}&a to &e{player}&a."
+  tool-received: "&aYou received a &5{tool}&a!"
+  combat-entered: "&cYou are now in combat! Do not log out for {seconds}s."
+  combat-expired: "&aYou are no longer in combat."
+  combat-action-bar: "&c⚔ In combat: &f{seconds}s"
+  combat-command-blocked: "&cYou cannot use &e/{command}&c while in combat!"
+  combat-teleport-blocked: "&cYou cannot teleport while in combat!"
+  combat-log-broadcast: "&e{player} &ctried to combat log and was slain! Their loot was dropped."
+  combat-log-rejoin: "&cYou logged out during combat and were slain. Your items were dropped where you left."
+  combat-status-self: "&7You are in combat for &c{seconds}s&7."
+  combat-status-self-none: "&7You are not in combat."
+  combat-status-other: "&e{player} &7is in combat for &c{seconds}s&7."
+  combat-status-other-none: "&e{player} &7is not in combat."
