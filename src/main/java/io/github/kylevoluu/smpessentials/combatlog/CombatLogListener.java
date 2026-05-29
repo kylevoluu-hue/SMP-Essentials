@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -115,21 +116,46 @@ public final class CombatLogListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event) {
-        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-teleports", true)) {
+        if (!enabled()) {
             return;
         }
         Player player = event.getPlayer();
         if (!combat.isTagged(player.getUniqueId()) || bypasses(player)) {
             return;
         }
-        String cause = event.getCause().name();
-        for (String blocked : plugin.getConfig().getStringList("combat.blocked-teleport-causes")) {
-            if (cause.equalsIgnoreCase(blocked)) {
-                event.setCancelled(true);
-                player.sendMessage(messages.prefixed("combat-teleport-blocked"));
-                return;
+        if (isTeleportBlocked(event.getCause())) {
+            event.setCancelled(true);
+            player.sendMessage(messages.prefixed("combat-teleport-blocked"));
+        }
+    }
+
+    /** Whether this teleport cause is blocked, via its dedicated toggle or the generic list. */
+    private boolean isTeleportBlocked(PlayerTeleportEvent.TeleportCause cause) {
+        switch (cause) {
+            case ENDER_PEARL -> {
+                if (plugin.getConfig().getBoolean("combat.block-ender-pearl", false)) return true;
+            }
+            case CHORUS_FRUIT -> {
+                if (plugin.getConfig().getBoolean("combat.block-chorus-fruit", false)) return true;
+            }
+            case END_GATEWAY -> {
+                if (plugin.getConfig().getBoolean("combat.block-end-gateway", false)) return true;
+            }
+            case EXIT_BED -> {
+                if (plugin.getConfig().getBoolean("combat.block-exit-bed", false)) return true;
+            }
+            default -> {
             }
         }
+        // Generic cause list (COMMAND/PLUGIN/SPECTATE etc.).
+        if (plugin.getConfig().getBoolean("combat.block-teleports", true)) {
+            for (String blocked : plugin.getConfig().getStringList("combat.blocked-teleport-causes")) {
+                if (cause.name().equalsIgnoreCase(blocked)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -165,7 +191,7 @@ public final class CombatLogListener implements Listener {
     public void onMount(EntityMountEvent event) {
         // Covers every rideable transport: boats, minecarts, horses, pigs,
         // striders, camels, llamas, etc. (they are all mounted entities).
-        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-vehicles", false)) {
+        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-mounting", false)) {
             return;
         }
         if (!(event.getEntity() instanceof Player player)) {
@@ -173,7 +199,21 @@ public final class CombatLogListener implements Listener {
         }
         if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
             event.setCancelled(true);
-            player.sendMessage(messages.prefixed("combat-vehicle-blocked"));
+            player.sendMessage(messages.prefixed("combat-mount-blocked"));
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onDismount(EntityDismountEvent event) {
+        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-dismounting", false)) {
+            return;
+        }
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
+            event.setCancelled(true);
+            player.sendMessage(messages.prefixed("combat-dismount-blocked"));
         }
     }
 

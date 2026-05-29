@@ -52,12 +52,23 @@ combat:
   pearls and chorus fruit are still allowed** — they're legitimate combat movement.
 
 Exactly **what is disabled in combat is fully configurable** — every form of
-transport has its own on/off toggle: `block-commands`, `block-teleports`,
-`block-elytra`, `block-flight`, and `block-vehicles` (boats, minecarts, horses,
-pigs, striders, camels, llamas, …). The blocked command/teleport lists are
-editable too — `blocked-teleport-causes` accepts any cause (ender pearl, chorus
-fruit, portals, …). Elytra/flight/vehicle blocking are off by default. All of
-these can be set per-preset.
+transport has its own on/off toggle:
+
+| Toggle | Blocks |
+|---|---|
+| `block-commands` | the commands in `blocked-commands` |
+| `block-teleports` | generic teleports in `blocked-teleport-causes` (COMMAND/PLUGIN/SPECTATE/…) |
+| `block-elytra` | elytra gliding |
+| `block-flight` | flying (creative/allow-flight) |
+| `block-mounting` | boarding boats, minecarts, horses, pigs, striders, camels, llamas, … |
+| `block-dismounting` | leaving a vehicle or mount |
+| `block-ender-pearl` | ender pearl teleports |
+| `block-chorus-fruit` | chorus fruit teleports |
+| `block-end-gateway` | end gateway teleports |
+| `block-exit-bed` | the teleport when leaving a bed |
+
+Everything except `block-commands`/`block-teleports` is off by default, and all
+of these (plus the editable command/teleport-cause lists) can be set per-preset.
 
 If a player **disconnects while in combat** ("combat logging"):
 - They are **slain**: their full **inventory + armor** drops as loot at the spot
@@ -263,7 +274,7 @@ top of `config.yml`:
 |---|---|
 | `custom` | Ignore presets; use the exact values in `config.yml` (default) |
 | `default` | Balanced settings (same as the shipped defaults) |
-| `hardcore` | 30s combat timer, no flying/gliding/riding away, trees drop their leaves |
+| `hardcore` | 30s combat timer, no escaping by flight/glide/ride/pearl/chorus, trees drop their leaves |
 | `casual` | No combat-log penalties at all, tools never lose durability |
 
 ```yaml
@@ -298,7 +309,12 @@ combat:
   block-teleports: true    # block the teleport causes in blocked-teleport-causes
   block-elytra: false      # prevent gliding away with an elytra
   block-flight: false      # cancel flight (creative/allow-flight)
-  block-vehicles: false    # prevent boarding boats/minecarts/horses/etc.
+  block-mounting: false    # boarding boats/minecarts/horses/etc.
+  block-dismounting: false # leaving a vehicle or mount
+  block-ender-pearl: false # ender pearl teleports
+  block-chorus-fruit: false# chorus fruit teleports
+  block-end-gateway: false # end gateway teleports
+  block-exit-bed: false    # the teleport when leaving a bed
   block-commands: true
   blocked-commands: [tp, tpa, tpaccept, tpahere, tpyes, teleport, home, sethome,
     homes, spawn, warp, warps, rtp, wild, randomtp, back, lobby, hub, server]
