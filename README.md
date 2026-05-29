@@ -47,7 +47,9 @@ player hitting another player (melee or a player-fired projectile) — mob and
 environmental damage never tag you. When tagged, a player is **in combat for 20
 seconds**, and **every new hit resets the timer back to the full 20s**. While in
 combat:
-- A countdown is shown on the **action bar**.
+- A live countdown is shown as a **boss bar** (a draining bar at the top of the
+  screen) and on the **action bar** — both configurable (`boss-bar`,
+  `boss-bar-color`, `action-bar`).
 - **Escape commands** (`/tp`, `/tpa`, `/home`, `/spawn`, `/warp`, `/rtp`, `/back`, …)
   are blocked.
 - **Teleports** from any plugin (command/plugin/spectate) are blocked. **Ender
@@ -317,12 +319,13 @@ combat:
   block-chorus-fruit: false# chorus fruit teleports
   block-end-gateway: false # end gateway teleports
   block-exit-bed: false    # the teleport when leaving a bed
-  block-commands: true
   blocked-commands: [tp, tpa, tpaccept, tpahere, tpyes, teleport, home, sethome,
     homes, spawn, warp, warps, rtp, wild, randomtp, back, lobby, hub, server]
-  blocked-teleport-causes: [COMMAND, PLUGIN, SPECTATE]  # ender pearls/chorus allowed
+  blocked-teleport-causes: [COMMAND, PLUGIN, SPECTATE]  # generic causes (pearl/chorus have own toggles)
   teleport-to-spawn-on-rejoin: true
-  action-bar: true
+  action-bar: true         # text countdown above the hotbar
+  boss-bar: true           # draining boss-bar countdown at the top of the screen
+  boss-bar-color: RED      # RED, PINK, BLUE, GREEN, YELLOW, PURPLE, WHITE
 
 messages:
   prefix: "&5&lSMP &8» &r"

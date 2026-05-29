@@ -128,8 +128,13 @@ combat:
     - SPECTATE
   # When a player who combat-logged reconnects, teleport them to the world spawn.
   teleport-to-spawn-on-rejoin: true
-  # Show a combat countdown on the action bar.
+  # Show a combat countdown on the action bar (text above the hotbar).
   action-bar: true
+  # Show a combat countdown boss bar (the bar at the top of the screen) that
+  # drains as the timer runs out.
+  boss-bar: true
+  # Boss bar colour: RED, PINK, BLUE, GREEN, YELLOW, PURPLE or WHITE.
+  boss-bar-color: RED
 
 messages:
   # &-style color codes are supported (translated to Adventure components).
@@ -141,6 +146,7 @@ messages:
   combat-entered: "&cYou are now in combat! Do not log out for {seconds}s."
   combat-expired: "&aYou are no longer in combat."
   combat-action-bar: "&c⚔ In combat: &f{seconds}s"
+  combat-boss-bar: "&c⚔ Combat &f{seconds}s"
   combat-command-blocked: "&cYou cannot use &e/{command}&c while in combat!"
   combat-teleport-blocked: "&cYou cannot teleport while in combat!"
   combat-elytra-blocked: "&cYou cannot use an elytra while in combat!"
