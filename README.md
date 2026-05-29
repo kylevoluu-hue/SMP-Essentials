@@ -30,6 +30,8 @@ configurable safety cap so it never lags the server. Optionally clears the leave
 too.
 
 ### 🔮 Amethyst tools are real tools
+- **Netherite design** — they use the netherite tool model (and its durability /
+  fire-resistance), just renamed *Amethyst Pickaxe* / *Amethyst Axe* with a glint.
 - **Craftable** with a recipe that mirrors the vanilla layout, swapping the head
   pieces for **1 amethyst shard + 2 netherite ingots** (see [Recipes](#recipes)).
 - **Enchantable** — apply Efficiency, Fortune, Silk Touch, Unbreaking, Mending,
