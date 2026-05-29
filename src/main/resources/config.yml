@@ -78,6 +78,9 @@ combat:
   block-elytra: false
   # Cancel flight (e.g. creative/allow-flight) while in combat.
   block-flight: false
+  # Prevent boarding ANY vehicle/mount while in combat: boats, minecarts,
+  # horses, donkeys, mules, pigs, striders, camels, llamas, etc.
+  block-vehicles: false
 
   # Commands (without the leading slash) that cannot be used while in combat.
   # Matching is by the root command, so "tpa" also blocks "/tpa Steve".
@@ -103,9 +106,12 @@ combat:
     - server
   # Teleport causes that are cancelled while a player is in combat. This is a
   # catch-all that stops teleports from ANY plugin regardless of command name.
-  # ENDER_PEARL and CHORUS_FRUIT are intentionally NOT listed, so those remain
-  # usable in a fight. Valid values are org.bukkit PlayerTeleportEvent.TeleportCause
-  # names, e.g. COMMAND, PLUGIN, SPECTATE, ENDER_PEARL, CHORUS_FRUIT, END_PORTAL.
+  # Add or remove any of these to control which transportation types are blocked.
+  # All valid PlayerTeleportEvent.TeleportCause values:
+  #   COMMAND, PLUGIN, SPECTATE, ENDER_PEARL, CHORUS_FRUIT, NETHER_PORTAL,
+  #   END_PORTAL, END_GATEWAY, DISMOUNT_PLAYER, EXIT_BED, UNKNOWN
+  # ENDER_PEARL and CHORUS_FRUIT are left out by default so they stay usable in a
+  # fight; add them here if you want to block those too.
   blocked-teleport-causes:
     - COMMAND
     - PLUGIN
@@ -129,6 +135,7 @@ messages:
   combat-teleport-blocked: "&cYou cannot teleport while in combat!"
   combat-elytra-blocked: "&cYou cannot use an elytra while in combat!"
   combat-flight-blocked: "&cYou cannot fly while in combat!"
+  combat-vehicle-blocked: "&cYou cannot ride vehicles while in combat!"
   combat-log-broadcast: "&e{player} &ctried to combat log and was slain! Their loot was dropped."
   combat-log-rejoin: "&cYou logged out during combat and were slain. Your items were dropped where you left."
   combat-status-self: "&7You are in combat for &c{seconds}s&7."
@@ -172,6 +179,7 @@ presets:
       block-teleports: true
       block-elytra: true
       block-flight: true
+      block-vehicles: true
 
   # Relaxed: no combat-log penalties at all, and the Amethyst tools never lose
   # durability.

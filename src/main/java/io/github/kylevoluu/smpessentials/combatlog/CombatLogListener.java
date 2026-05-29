@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -157,6 +158,22 @@ public final class CombatLogListener implements Listener {
         if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
             event.setCancelled(true);
             player.sendMessage(messages.prefixed("combat-flight-blocked"));
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onMount(EntityMountEvent event) {
+        // Covers every rideable transport: boats, minecarts, horses, pigs,
+        // striders, camels, llamas, etc. (they are all mounted entities).
+        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-vehicles", false)) {
+            return;
+        }
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
+            event.setCancelled(true);
+            player.sendMessage(messages.prefixed("combat-vehicle-blocked"));
         }
     }
 
