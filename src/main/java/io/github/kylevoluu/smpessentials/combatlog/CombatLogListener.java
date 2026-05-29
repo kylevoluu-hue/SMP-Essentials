@@ -10,10 +10,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
@@ -112,7 +114,7 @@ public final class CombatLogListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event) {
-        if (!enabled()) {
+        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-teleports", true)) {
             return;
         }
         Player player = event.getPlayer();
@@ -126,6 +128,35 @@ public final class CombatLogListener implements Listener {
                 player.sendMessage(messages.prefixed("combat-teleport-blocked"));
                 return;
             }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onGlide(EntityToggleGlideEvent event) {
+        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-elytra", false)) {
+            return;
+        }
+        if (!event.isGliding() || !(event.getEntity() instanceof Player player)) {
+            return; // Only block starting to glide.
+        }
+        if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
+            event.setCancelled(true);
+            player.sendMessage(messages.prefixed("combat-elytra-blocked"));
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onFlight(PlayerToggleFlightEvent event) {
+        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-flight", false)) {
+            return;
+        }
+        if (!event.isFlying()) {
+            return; // Only block starting to fly.
+        }
+        Player player = event.getPlayer();
+        if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
+            event.setCancelled(true);
+            player.sendMessage(messages.prefixed("combat-flight-blocked"));
         }
     }
 

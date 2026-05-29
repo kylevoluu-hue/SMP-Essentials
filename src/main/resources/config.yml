@@ -64,8 +64,21 @@ combat:
   # When a tagged player disconnects, drop their experience as orbs at the
   # logout location (in addition to their items).
   drop-experience: true
-  # Block the commands below while a player is in combat.
+
+  # ------------------------------------------------------------------------
+  #  WHAT IS DISABLED WHILE IN COMBAT
+  #  Each restriction below is an independent on/off toggle. Edit them here, or
+  #  override any of them (including the lists) inside a preset.
+  # ------------------------------------------------------------------------
+  # Block the commands in 'blocked-commands' while in combat.
   block-commands: true
+  # Block teleports whose cause is in 'blocked-teleport-causes' while in combat.
+  block-teleports: true
+  # Prevent gliding away with an elytra while in combat.
+  block-elytra: false
+  # Cancel flight (e.g. creative/allow-flight) while in combat.
+  block-flight: false
+
   # Commands (without the leading slash) that cannot be used while in combat.
   # Matching is by the root command, so "tpa" also blocks "/tpa Steve".
   blocked-commands:
@@ -114,6 +127,8 @@ messages:
   combat-action-bar: "&c⚔ In combat: &f{seconds}s"
   combat-command-blocked: "&cYou cannot use &e/{command}&c while in combat!"
   combat-teleport-blocked: "&cYou cannot teleport while in combat!"
+  combat-elytra-blocked: "&cYou cannot use an elytra while in combat!"
+  combat-flight-blocked: "&cYou cannot fly while in combat!"
   combat-log-broadcast: "&e{player} &ctried to combat log and was slain! Their loot was dropped."
   combat-log-rejoin: "&cYou logged out during combat and were slain. Your items were dropped where you left."
   combat-status-self: "&7You are in combat for &c{seconds}s&7."
@@ -142,8 +157,8 @@ presets:
       duration-seconds: 20
       teleport-to-spawn-on-rejoin: true
 
-  # Harsher PvP and survival: longer combat window and trees take their leaves
-  # with them.
+  # Harsher PvP and survival: longer combat window, no flying or gliding away,
+  # and trees take their leaves with them.
   hardcore:
     amethyst-tools:
       axe:
@@ -153,6 +168,10 @@ presets:
       duration-seconds: 30
       drop-experience: true
       teleport-to-spawn-on-rejoin: true
+      block-commands: true
+      block-teleports: true
+      block-elytra: true
+      block-flight: true
 
   # Relaxed: no combat-log penalties at all, and the Amethyst tools never lose
   # durability.

@@ -51,6 +51,11 @@ combat:
 - **Teleports** from any plugin (command/plugin/spectate) are blocked. **Ender
   pearls and chorus fruit are still allowed** — they're legitimate combat movement.
 
+Exactly **what is disabled in combat is fully configurable** — each restriction
+(`block-commands`, `block-teleports`, `block-elytra`, `block-flight`) is its own
+on/off toggle, and the blocked command/teleport lists are editable. Elytra and
+flight blocking are off by default. All of these can be set per-preset.
+
 If a player **disconnects while in combat** ("combat logging"):
 - They are **slain**: their full **inventory + armor** drops as loot at the spot
   they logged out (so their opponent can collect it), and their **XP** drops too.
@@ -255,7 +260,7 @@ top of `config.yml`:
 |---|---|
 | `custom` | Ignore presets; use the exact values in `config.yml` (default) |
 | `default` | Balanced settings (same as the shipped defaults) |
-| `hardcore` | 30s combat timer, trees drop their leaves |
+| `hardcore` | 30s combat timer, no flying/gliding away, trees drop their leaves |
 | `casual` | No combat-log penalties at all, tools never lose durability |
 
 ```yaml
@@ -285,6 +290,11 @@ combat:
   enabled: true
   duration-seconds: 20     # player-vs-player only; resets to full on each new hit
   drop-experience: true    # drop XP when someone combat-logs
+  # --- what is disabled while in combat (each is its own toggle) ---
+  block-commands: true     # block the commands in blocked-commands
+  block-teleports: true    # block the teleport causes in blocked-teleport-causes
+  block-elytra: false      # prevent gliding away with an elytra
+  block-flight: false      # cancel flight (creative/allow-flight)
   block-commands: true
   blocked-commands: [tp, tpa, tpaccept, tpahere, tpyes, teleport, home, sethome,
     homes, spawn, warp, warps, rtp, wild, randomtp, back, lobby, hub, server]
