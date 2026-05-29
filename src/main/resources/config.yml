@@ -83,7 +83,8 @@ combat:
   # Prevent boarding boats/minecarts/horses/pigs/striders/camels/llamas/etc.
   # (mounting) while in combat.
   block-mounting: false
-  # Prevent leaving a vehicle or mount (dismounting) while in combat.
+  # Prevent leaving a vehicle (boat/minecart) while in combat. Combined with
+  # block-mounting, players can't use vehicles to escape a fight.
   block-dismounting: false
   # Block ender pearl teleports while in combat.
   block-ender-pearl: false

@@ -10,7 +10,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDismountEvent;
 import org.bukkit.event.entity.EntityMountEvent;
 import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
@@ -18,6 +17,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
@@ -131,26 +131,23 @@ public final class CombatLogListener implements Listener {
 
     /** Whether this teleport cause is blocked, via its dedicated toggle or the generic list. */
     private boolean isTeleportBlocked(PlayerTeleportEvent.TeleportCause cause) {
-        switch (cause) {
-            case ENDER_PEARL -> {
-                if (plugin.getConfig().getBoolean("combat.block-ender-pearl", false)) return true;
-            }
-            case CHORUS_FRUIT -> {
-                if (plugin.getConfig().getBoolean("combat.block-chorus-fruit", false)) return true;
-            }
-            case END_GATEWAY -> {
-                if (plugin.getConfig().getBoolean("combat.block-end-gateway", false)) return true;
-            }
-            case EXIT_BED -> {
-                if (plugin.getConfig().getBoolean("combat.block-exit-bed", false)) return true;
-            }
-            default -> {
-            }
+        String name = cause.name();
+        if (name.equals("ENDER_PEARL") && plugin.getConfig().getBoolean("combat.block-ender-pearl", false)) {
+            return true;
+        }
+        if (name.equals("CHORUS_FRUIT") && plugin.getConfig().getBoolean("combat.block-chorus-fruit", false)) {
+            return true;
+        }
+        if (name.equals("END_GATEWAY") && plugin.getConfig().getBoolean("combat.block-end-gateway", false)) {
+            return true;
+        }
+        if (name.equals("EXIT_BED") && plugin.getConfig().getBoolean("combat.block-exit-bed", false)) {
+            return true;
         }
         // Generic cause list (COMMAND/PLUGIN/SPECTATE etc.).
         if (plugin.getConfig().getBoolean("combat.block-teleports", true)) {
             for (String blocked : plugin.getConfig().getStringList("combat.blocked-teleport-causes")) {
-                if (cause.name().equalsIgnoreCase(blocked)) {
+                if (name.equalsIgnoreCase(blocked)) {
                     return true;
                 }
             }
@@ -204,11 +201,11 @@ public final class CombatLogListener implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onDismount(EntityDismountEvent event) {
+    public void onVehicleExit(VehicleExitEvent event) {
         if (!enabled() || !plugin.getConfig().getBoolean("combat.block-dismounting", false)) {
             return;
         }
-        if (!(event.getEntity() instanceof Player player)) {
+        if (!(event.getExited() instanceof Player player)) {
             return;
         }
         if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
