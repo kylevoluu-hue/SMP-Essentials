@@ -10,14 +10,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDismountEvent;
-import org.bukkit.event.entity.EntityMountEvent;
-import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
@@ -61,20 +57,21 @@ public final class CombatLogListener implements Listener {
             return;
         }
 
-        // Combat tagging is STRICTLY player-vs-player: the timer is only ever
-        // started or refreshed by a player hitting another player (melee or a
-        // player-fired projectile). Mob and environmental damage never tag.
         Player attacker = resolveAttacker(event);
-        if (attacker == null || attacker.equals(victim)) {
-            return;
-        }
-        // tag() re-stamps the expiry to the full duration, so every new hit
-        // resets the countdown back to combat.duration-seconds (20 by default).
-        if (!bypasses(attacker)) {
-            combat.tag(attacker);
-        }
-        if (!bypasses(victim)) {
-            combat.tag(victim);
+        if (attacker != null && !attacker.equals(victim)) {
+            if (!plugin.getConfig().getBoolean("combat.tag-on-pvp", true)) {
+                return;
+            }
+            if (!bypasses(attacker)) {
+                combat.tag(attacker);
+            }
+            if (!bypasses(victim)) {
+                combat.tag(victim);
+            }
+        } else if (attacker == null && plugin.getConfig().getBoolean("combat.tag-on-mob-damage", false)) {
+            if (!bypasses(victim)) {
+                combat.tag(victim);
+            }
         }
     }
 
@@ -123,97 +120,13 @@ public final class CombatLogListener implements Listener {
         if (!combat.isTagged(player.getUniqueId()) || bypasses(player)) {
             return;
         }
-        if (isTeleportBlocked(event.getCause())) {
-            event.setCancelled(true);
-            player.sendMessage(messages.prefixed("combat-teleport-blocked"));
-        }
-    }
-
-    /** Whether this teleport cause is blocked, via its dedicated toggle or the generic list. */
-    private boolean isTeleportBlocked(PlayerTeleportEvent.TeleportCause cause) {
-        switch (cause) {
-            case ENDER_PEARL -> {
-                if (plugin.getConfig().getBoolean("combat.block-ender-pearl", false)) return true;
+        String cause = event.getCause().name();
+        for (String blocked : plugin.getConfig().getStringList("combat.blocked-teleport-causes")) {
+            if (cause.equalsIgnoreCase(blocked)) {
+                event.setCancelled(true);
+                player.sendMessage(messages.prefixed("combat-teleport-blocked"));
+                return;
             }
-            case CHORUS_FRUIT -> {
-                if (plugin.getConfig().getBoolean("combat.block-chorus-fruit", false)) return true;
-            }
-            case END_GATEWAY -> {
-                if (plugin.getConfig().getBoolean("combat.block-end-gateway", false)) return true;
-            }
-            case EXIT_BED -> {
-                if (plugin.getConfig().getBoolean("combat.block-exit-bed", false)) return true;
-            }
-            default -> {
-            }
-        }
-        // Generic cause list (COMMAND/PLUGIN/SPECTATE etc.).
-        if (plugin.getConfig().getBoolean("combat.block-teleports", true)) {
-            for (String blocked : plugin.getConfig().getStringList("combat.blocked-teleport-causes")) {
-                if (cause.name().equalsIgnoreCase(blocked)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onGlide(EntityToggleGlideEvent event) {
-        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-elytra", false)) {
-            return;
-        }
-        if (!event.isGliding() || !(event.getEntity() instanceof Player player)) {
-            return; // Only block starting to glide.
-        }
-        if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
-            event.setCancelled(true);
-            player.sendMessage(messages.prefixed("combat-elytra-blocked"));
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onFlight(PlayerToggleFlightEvent event) {
-        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-flight", false)) {
-            return;
-        }
-        if (!event.isFlying()) {
-            return; // Only block starting to fly.
-        }
-        Player player = event.getPlayer();
-        if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
-            event.setCancelled(true);
-            player.sendMessage(messages.prefixed("combat-flight-blocked"));
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onMount(EntityMountEvent event) {
-        // Covers every rideable transport: boats, minecarts, horses, pigs,
-        // striders, camels, llamas, etc. (they are all mounted entities).
-        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-mounting", false)) {
-            return;
-        }
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
-        if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
-            event.setCancelled(true);
-            player.sendMessage(messages.prefixed("combat-mount-blocked"));
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onDismount(EntityDismountEvent event) {
-        if (!enabled() || !plugin.getConfig().getBoolean("combat.block-dismounting", false)) {
-            return;
-        }
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
-        if (combat.isTagged(player.getUniqueId()) && !bypasses(player)) {
-            event.setCancelled(true);
-            player.sendMessage(messages.prefixed("combat-dismount-blocked"));
         }
     }
 
