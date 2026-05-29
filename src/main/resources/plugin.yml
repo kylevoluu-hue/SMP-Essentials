@@ -13,6 +13,7 @@ commands:
     usage: |-
       /smpe give <pickaxe|axe> [player] - Give an Amethyst tool
       /smpe combat [player] - Check combat status
+      /smpe preset [list|<name>] - List or apply a config preset
       /smpe reload - Reload the configuration
     aliases: [smpessentials]
 

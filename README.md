@@ -225,6 +225,7 @@ tools to be admin-only.
 |---|---|---|
 | `/smpe give <pickaxe\|axe> [player]` | Give an Amethyst tool to yourself or another player | `smpessentials.give` |
 | `/smpe combat [player]` | Show how long you (or another player) are in combat | `smpessentials.combat.check` |
+| `/smpe preset [list\|<name>]` | List the available presets, or apply one live | `smpessentials.reload` |
 | `/smpe reload` | Reload `config.yml` | `smpessentials.reload` |
 
 Alias: `/smpessentials`.
@@ -240,6 +241,26 @@ Alias: `/smpessentials`.
 | `smpessentials.combat.bypass` | Exempt from combat tagging, command/teleport blocking, and combat-log penalties | nobody |
 
 ---
+
+## Presets
+
+Instead of tweaking every option by hand, pick a **preset** — a named bundle of
+settings applied on top of the rest of your config. Set `active-preset` at the
+top of `config.yml`:
+
+| Preset | What it does |
+|---|---|
+| `custom` | Ignore presets; use the exact values in `config.yml` (default) |
+| `default` | Balanced settings (same as the shipped defaults) |
+| `hardcore` | 30s combat timer, mobs also tag you, trees drop their leaves |
+| `casual` | No combat-log penalties at all, tools never lose durability |
+
+```yaml
+active-preset: hardcore
+```
+then run `/smpe reload`. You can also switch **live** (until the next restart)
+with `/smpe preset hardcore`, and list options with `/smpe preset list`. Presets
+live in the `presets:` section at the bottom of `config.yml` — add your own there.
 
 ## Configuration
 

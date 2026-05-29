@@ -1,7 +1,32 @@
 # ============================================================================
 #  SMP Essentials configuration
 #  Every option is documented. After editing, run /smpe reload (or restart).
+# ----------------------------------------------------------------------------
+#  COMMANDS (alias: /smpessentials)
+#    /smpe give <pickaxe|axe> [player]  Give an Amethyst tool   (smpessentials.give)
+#    /smpe combat [player]              Show combat status      (smpessentials.combat.check)
+#    /smpe preset [list|<name>]         List / apply a preset   (smpessentials.reload)
+#    /smpe reload                       Reload this file        (smpessentials.reload)
+#
+#  PERMISSIONS
+#    smpessentials.*               All permissions (default: op)
+#    smpessentials.give            Use /smpe give (op)
+#    smpessentials.reload          Use /smpe reload and /smpe preset (op)
+#    smpessentials.combat.check    Use /smpe combat (everyone)
+#    smpessentials.combat.bypass   Exempt from combat tagging/penalties (nobody)
+# ----------------------------------------------------------------------------
+#  PRESETS
+#    'active-preset' selects a bundle of settings from the 'presets' section at
+#    the bottom of this file and applies it ON TOP of everything below.
+#      - custom  -> ignore presets, use the values written in this file as-is
+#      - default -> balanced settings (same as the defaults below)
+#      - hardcore-> harsher PvP and survival
+#      - casual  -> relaxed: no combat penalties, tools never wear out
+#    Switch live with /smpe preset <name> (temporary), or set it here + reload
+#    to make it permanent.
 # ============================================================================
+
+active-preset: custom
 
 amethyst-tools:
   # Master switch for the Amethyst pickaxe and axe abilities.
@@ -99,3 +124,51 @@ messages:
   combat-status-self-none: "&7You are not in combat."
   combat-status-other: "&e{player} &7is in combat for &c{seconds}s&7."
   combat-status-other-none: "&e{player} &7is not in combat."
+
+# ============================================================================
+#  PRESETS
+#  Each preset below lists only the settings it changes; anything it omits keeps
+#  the value from the main config above. Selected via 'active-preset' at the top
+#  of this file (or /smpe preset <name>). Feel free to add your own presets here.
+# ============================================================================
+presets:
+
+  # Balanced defaults (identical to the values above).
+  default:
+    amethyst-tools:
+      pickaxe:
+        damage-tool: true
+      axe:
+        damage-tool: true
+        break-leaves: false
+    combat:
+      enabled: true
+      duration-seconds: 20
+      tag-on-mob-damage: false
+      teleport-to-spawn-on-rejoin: true
+
+  # Harsher PvP and survival: longer combat window, mobs tag you too, trees take
+  # their leaves with them.
+  hardcore:
+    amethyst-tools:
+      axe:
+        break-leaves: true
+    combat:
+      enabled: true
+      duration-seconds: 30
+      tag-on-pvp: true
+      tag-on-mob-damage: true
+      drop-experience: true
+      teleport-to-spawn-on-rejoin: true
+
+  # Relaxed: no combat-log penalties at all, and the Amethyst tools never lose
+  # durability.
+  casual:
+    amethyst-tools:
+      pickaxe:
+        damage-tool: false
+      axe:
+        damage-tool: false
+        break-leaves: true
+    combat:
+      enabled: false
