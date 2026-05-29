@@ -40,8 +40,11 @@ too.
 - Also obtainable via `/smpe give` for admins.
 
 ### ⚔️ Anti-combat-log
-When a player is hit by another player they're put **in combat for 20 seconds**
-(each new hit resets the timer to the full 20s). While in combat:
+Combat is **strictly player-vs-player**: the timer is only ever started by a
+player hitting another player (melee or a player-fired projectile) — mob and
+environmental damage never tag you. When tagged, a player is **in combat for 20
+seconds**, and **every new hit resets the timer back to the full 20s**. While in
+combat:
 - A countdown is shown on the **action bar**.
 - **Escape commands** (`/tp`, `/tpa`, `/home`, `/spawn`, `/warp`, `/rtp`, `/back`, …)
   are blocked.
@@ -252,7 +255,7 @@ top of `config.yml`:
 |---|---|
 | `custom` | Ignore presets; use the exact values in `config.yml` (default) |
 | `default` | Balanced settings (same as the shipped defaults) |
-| `hardcore` | 30s combat timer, mobs also tag you, trees drop their leaves |
+| `hardcore` | 30s combat timer, trees drop their leaves |
 | `casual` | No combat-log penalties at all, tools never lose durability |
 
 ```yaml
@@ -280,9 +283,7 @@ amethyst-tools:
 
 combat:
   enabled: true
-  duration-seconds: 20     # combat timer length; resets on each new hit
-  tag-on-pvp: true         # tag players who fight players
-  tag-on-mob-damage: false # also tag on damage from mobs
+  duration-seconds: 20     # player-vs-player only; resets to full on each new hit
   drop-experience: true    # drop XP when someone combat-logs
   block-commands: true
   blocked-commands: [tp, tpa, tpaccept, tpahere, tpyes, teleport, home, sethome,

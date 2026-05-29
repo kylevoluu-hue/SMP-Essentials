@@ -57,21 +57,20 @@ public final class CombatLogListener implements Listener {
             return;
         }
 
+        // Combat tagging is STRICTLY player-vs-player: the timer is only ever
+        // started or refreshed by a player hitting another player (melee or a
+        // player-fired projectile). Mob and environmental damage never tag.
         Player attacker = resolveAttacker(event);
-        if (attacker != null && !attacker.equals(victim)) {
-            if (!plugin.getConfig().getBoolean("combat.tag-on-pvp", true)) {
-                return;
-            }
-            if (!bypasses(attacker)) {
-                combat.tag(attacker);
-            }
-            if (!bypasses(victim)) {
-                combat.tag(victim);
-            }
-        } else if (attacker == null && plugin.getConfig().getBoolean("combat.tag-on-mob-damage", false)) {
-            if (!bypasses(victim)) {
-                combat.tag(victim);
-            }
+        if (attacker == null || attacker.equals(victim)) {
+            return;
+        }
+        // tag() re-stamps the expiry to the full duration, so every new hit
+        // resets the countdown back to combat.duration-seconds (20 by default).
+        if (!bypasses(attacker)) {
+            combat.tag(attacker);
+        }
+        if (!bypasses(victim)) {
+            combat.tag(victim);
         }
     }
 

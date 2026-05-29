@@ -57,14 +57,10 @@ amethyst-tools:
 combat:
   # Master switch for the anti-combat-log system.
   enabled: true
-  # How long (in seconds) a player stays "in combat" after being hit. Each new
-  # hit from another player resets this back to the full duration.
+  # How long (in seconds) a player stays "in combat" after being hit by another
+  # player. The timer is ONLY started by player-vs-player damage (melee or a
+  # player-fired projectile) and resets to this full value on every new hit.
   duration-seconds: 20
-  # Tag players when they fight other players (recommended true).
-  tag-on-pvp: true
-  # Also tag players when they take damage from hostile mobs. Off by default so
-  # players are only punished for logging during PvP.
-  tag-on-mob-damage: false
   # When a tagged player disconnects, drop their experience as orbs at the
   # logout location (in addition to their items).
   drop-experience: true
@@ -144,11 +140,10 @@ presets:
     combat:
       enabled: true
       duration-seconds: 20
-      tag-on-mob-damage: false
       teleport-to-spawn-on-rejoin: true
 
-  # Harsher PvP and survival: longer combat window, mobs tag you too, trees take
-  # their leaves with them.
+  # Harsher PvP and survival: longer combat window and trees take their leaves
+  # with them.
   hardcore:
     amethyst-tools:
       axe:
@@ -156,8 +151,6 @@ presets:
     combat:
       enabled: true
       duration-seconds: 30
-      tag-on-pvp: true
-      tag-on-mob-damage: true
       drop-experience: true
       teleport-to-spawn-on-rejoin: true
 
