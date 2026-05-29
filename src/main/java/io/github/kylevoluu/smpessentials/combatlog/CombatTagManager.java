@@ -1,6 +1,7 @@
 package io.github.kylevoluu.smpessentials.combatlog;
 
 import io.github.kylevoluu.smpessentials.util.Messages;
+import net.kyori.adventure.bossbar.BossBar;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -32,6 +34,9 @@ public final class CombatTagManager {
 
     /** Players who combat-logged and have not yet rejoined (persisted across restarts). */
     private final Set<UUID> pendingLoggers = new HashSet<>();
+
+    /** Active combat boss bars by player UUID. */
+    private final Map<UUID, BossBar> bossBars = new ConcurrentHashMap<>();
 
     private final File loggerFile;
     private BukkitTask task;
@@ -80,20 +85,27 @@ public final class CombatTagManager {
 
     public void untag(UUID id) {
         combatExpiry.remove(id);
+        removeBossBar(id);
     }
 
-    /** Start the per-second action-bar / expiry task. */
+    /** Start the action-bar / boss-bar / expiry ticker (runs 5x per second for a smooth bar). */
     public void start() {
-        stop();
+        cancelTask();
         task = new BukkitRunnable() {
             @Override
             public void run() {
                 tick();
             }
-        }.runTaskTimer(plugin, 20L, 20L);
+        }.runTaskTimer(plugin, 4L, 4L);
     }
 
+    /** Stop the ticker and clear every active boss bar (used on disable). */
     public void stop() {
+        cancelTask();
+        clearAllBars();
+    }
+
+    private void cancelTask() {
         if (task != null) {
             task.cancel();
             task = null;
@@ -102,21 +114,91 @@ public final class CombatTagManager {
 
     private void tick() {
         boolean actionBar = plugin.getConfig().getBoolean("combat.action-bar", true);
+        boolean bossBar = plugin.getConfig().getBoolean("combat.boss-bar", true);
+        long now = System.currentTimeMillis();
+
         for (Map.Entry<UUID, Long> entry : new ArrayList<>(combatExpiry.entrySet())) {
             UUID id = entry.getKey();
             Player player = Bukkit.getPlayer(id);
-            if (System.currentTimeMillis() >= entry.getValue()) {
+
+            if (now >= entry.getValue()) {
                 combatExpiry.remove(id);
+                removeBossBar(id);
                 if (player != null) {
+                    player.sendActionBar(net.kyori.adventure.text.Component.empty());
                     player.sendMessage(messages.prefixed("combat-expired"));
                 }
                 continue;
             }
-            if (player != null && actionBar) {
-                player.sendActionBar(messages.plain("combat-action-bar",
-                        "seconds", String.valueOf(remainingSeconds(id))));
+
+            if (player == null) {
+                continue;
+            }
+            int seconds = remainingSeconds(id);
+            if (actionBar) {
+                player.sendActionBar(messages.plain("combat-action-bar", "seconds", String.valueOf(seconds)));
+            }
+            if (bossBar) {
+                float progress = clampProgress((entry.getValue() - now) / (durationSeconds() * 1000f));
+                updateBossBar(player, seconds, progress);
+            } else {
+                removeBossBar(id);
             }
         }
+
+        // Drop any stray bars for players no longer tagged.
+        for (UUID id : new ArrayList<>(bossBars.keySet())) {
+            if (!combatExpiry.containsKey(id)) {
+                removeBossBar(id);
+            }
+        }
+    }
+
+    private void updateBossBar(Player player, int seconds, float progress) {
+        net.kyori.adventure.text.Component title =
+                messages.plain("combat-boss-bar", "seconds", String.valueOf(seconds));
+        BossBar bar = bossBars.get(player.getUniqueId());
+        if (bar == null) {
+            bar = BossBar.bossBar(title, progress, bossBarColor(), BossBar.Overlay.PROGRESS);
+            bossBars.put(player.getUniqueId(), bar);
+            player.showBossBar(bar);
+        } else {
+            bar.name(title);
+            bar.progress(progress);
+            bar.color(bossBarColor());
+        }
+    }
+
+    private void removeBossBar(UUID id) {
+        BossBar bar = bossBars.remove(id);
+        if (bar != null) {
+            Player player = Bukkit.getPlayer(id);
+            if (player != null) {
+                player.hideBossBar(bar);
+            }
+        }
+    }
+
+    private void clearAllBars() {
+        for (UUID id : new ArrayList<>(bossBars.keySet())) {
+            removeBossBar(id);
+        }
+    }
+
+    private BossBar.Color bossBarColor() {
+        String raw = plugin.getConfig().getString("combat.boss-bar-color", "RED");
+        try {
+            return BossBar.Color.valueOf(raw.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            return BossBar.Color.RED;
+        }
+    }
+
+    private static float clampProgress(float value) {
+        if (value < 0f) {
+            return 0f;
+        }
+        return Math.min(value, 1f);
     }
 
     // --- combat-logger persistence -----------------------------------------

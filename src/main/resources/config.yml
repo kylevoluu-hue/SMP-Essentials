@@ -1,7 +1,32 @@
 # ============================================================================
 #  SMP Essentials configuration
 #  Every option is documented. After editing, run /smpe reload (or restart).
+# ----------------------------------------------------------------------------
+#  COMMANDS (alias: /smpessentials)
+#    /smpe give <pickaxe|axe> [player]  Give an Amethyst tool   (smpessentials.give)
+#    /smpe combat [player]              Show combat status      (smpessentials.combat.check)
+#    /smpe preset [list|<name>]         List / apply a preset   (smpessentials.reload)
+#    /smpe reload                       Reload this file        (smpessentials.reload)
+#
+#  PERMISSIONS
+#    smpessentials.*               All permissions (default: op)
+#    smpessentials.give            Use /smpe give (op)
+#    smpessentials.reload          Use /smpe reload and /smpe preset (op)
+#    smpessentials.combat.check    Use /smpe combat (everyone)
+#    smpessentials.combat.bypass   Exempt from combat tagging/penalties (nobody)
+# ----------------------------------------------------------------------------
+#  PRESETS
+#    'active-preset' selects a bundle of settings from the 'presets' section at
+#    the bottom of this file and applies it ON TOP of everything below.
+#      - custom  -> ignore presets, use the values written in this file as-is
+#      - default -> balanced settings (same as the defaults below)
+#      - hardcore-> harsher PvP and survival
+#      - casual  -> relaxed: no combat penalties, tools never wear out
+#    Switch live with /smpe preset <name> (temporary), or set it here + reload
+#    to make it permanent.
 # ============================================================================
+
+active-preset: custom
 
 amethyst-tools:
   # Master switch for the Amethyst pickaxe and axe abilities.
@@ -32,19 +57,43 @@ amethyst-tools:
 combat:
   # Master switch for the anti-combat-log system.
   enabled: true
-  # How long (in seconds) a player stays "in combat" after being hit. Each new
-  # hit from another player resets this back to the full duration.
+  # How long (in seconds) a player stays "in combat" after being hit by another
+  # player. The timer is ONLY started by player-vs-player damage (melee or a
+  # player-fired projectile) and resets to this full value on every new hit.
   duration-seconds: 20
-  # Tag players when they fight other players (recommended true).
-  tag-on-pvp: true
-  # Also tag players when they take damage from hostile mobs. Off by default so
-  # players are only punished for logging during PvP.
-  tag-on-mob-damage: false
   # When a tagged player disconnects, drop their experience as orbs at the
   # logout location (in addition to their items).
   drop-experience: true
-  # Block the commands below while a player is in combat.
+
+  # ------------------------------------------------------------------------
+  #  WHAT IS DISABLED WHILE IN COMBAT
+  #  Each restriction below is an independent on/off toggle. Edit them here, or
+  #  override any of them (including the lists) inside a preset.
+  # ------------------------------------------------------------------------
+  # Block the commands in 'blocked-commands' while in combat.
   block-commands: true
+  # Block teleports whose cause is in 'blocked-teleport-causes' while in combat
+  # (covers COMMAND/PLUGIN/SPECTATE etc. - the specific transport types below
+  # have their own dedicated toggles).
+  block-teleports: true
+  # Prevent gliding away with an elytra while in combat.
+  block-elytra: false
+  # Cancel flight (e.g. creative/allow-flight) while in combat.
+  block-flight: false
+  # Prevent boarding boats/minecarts/horses/pigs/striders/camels/llamas/etc.
+  # (mounting) while in combat.
+  block-mounting: false
+  # Prevent leaving a vehicle or mount (dismounting) while in combat.
+  block-dismounting: false
+  # Block ender pearl teleports while in combat.
+  block-ender-pearl: false
+  # Block chorus fruit teleports while in combat.
+  block-chorus-fruit: false
+  # Block end gateway teleports while in combat.
+  block-end-gateway: false
+  # Block the teleport that happens when leaving a bed, while in combat.
+  block-exit-bed: false
+
   # Commands (without the leading slash) that cannot be used while in combat.
   # Matching is by the root command, so "tpa" also blocks "/tpa Steve".
   blocked-commands:
@@ -67,19 +116,25 @@ combat:
     - lobby
     - hub
     - server
-  # Teleport causes that are cancelled while a player is in combat. This is a
-  # catch-all that stops teleports from ANY plugin regardless of command name.
-  # ENDER_PEARL and CHORUS_FRUIT are intentionally NOT listed, so those remain
-  # usable in a fight. Valid values are org.bukkit PlayerTeleportEvent.TeleportCause
-  # names, e.g. COMMAND, PLUGIN, SPECTATE, ENDER_PEARL, CHORUS_FRUIT, END_PORTAL.
+  # Generic teleport causes cancelled while in combat (used when 'block-teleports'
+  # is on). Ender pearl, chorus fruit, end gateway and exit-bed have their own
+  # dedicated toggles above, so this list is mainly for the rest. Any valid
+  # PlayerTeleportEvent.TeleportCause name works here:
+  #   COMMAND, PLUGIN, SPECTATE, ENDER_PEARL, CHORUS_FRUIT, NETHER_PORTAL,
+  #   END_PORTAL, END_GATEWAY, DISMOUNT_PLAYER, EXIT_BED, UNKNOWN
   blocked-teleport-causes:
     - COMMAND
     - PLUGIN
     - SPECTATE
   # When a player who combat-logged reconnects, teleport them to the world spawn.
   teleport-to-spawn-on-rejoin: true
-  # Show a combat countdown on the action bar.
+  # Show a combat countdown on the action bar (text above the hotbar).
   action-bar: true
+  # Show a combat countdown boss bar (the bar at the top of the screen) that
+  # drains as the timer runs out.
+  boss-bar: true
+  # Boss bar colour: RED, PINK, BLUE, GREEN, YELLOW, PURPLE or WHITE.
+  boss-bar-color: RED
 
 messages:
   # &-style color codes are supported (translated to Adventure components).
@@ -91,11 +146,69 @@ messages:
   combat-entered: "&cYou are now in combat! Do not log out for {seconds}s."
   combat-expired: "&aYou are no longer in combat."
   combat-action-bar: "&c⚔ In combat: &f{seconds}s"
+  combat-boss-bar: "&c⚔ Combat &f{seconds}s"
   combat-command-blocked: "&cYou cannot use &e/{command}&c while in combat!"
   combat-teleport-blocked: "&cYou cannot teleport while in combat!"
+  combat-elytra-blocked: "&cYou cannot use an elytra while in combat!"
+  combat-flight-blocked: "&cYou cannot fly while in combat!"
+  combat-mount-blocked: "&cYou cannot ride vehicles while in combat!"
+  combat-dismount-blocked: "&cYou cannot dismount while in combat!"
   combat-log-broadcast: "&e{player} &ctried to combat log and was slain! Their loot was dropped."
   combat-log-rejoin: "&cYou logged out during combat and were slain. Your items were dropped where you left."
   combat-status-self: "&7You are in combat for &c{seconds}s&7."
   combat-status-self-none: "&7You are not in combat."
   combat-status-other: "&e{player} &7is in combat for &c{seconds}s&7."
   combat-status-other-none: "&e{player} &7is not in combat."
+
+# ============================================================================
+#  PRESETS
+#  Each preset below lists only the settings it changes; anything it omits keeps
+#  the value from the main config above. Selected via 'active-preset' at the top
+#  of this file (or /smpe preset <name>). Feel free to add your own presets here.
+# ============================================================================
+presets:
+
+  # Balanced defaults (identical to the values above).
+  default:
+    amethyst-tools:
+      pickaxe:
+        damage-tool: true
+      axe:
+        damage-tool: true
+        break-leaves: false
+    combat:
+      enabled: true
+      duration-seconds: 20
+      teleport-to-spawn-on-rejoin: true
+
+  # Harsher PvP and survival: longer combat window, no escaping by flight,
+  # gliding, riding, pearling or chorus fruit, and trees drop their leaves.
+  hardcore:
+    amethyst-tools:
+      axe:
+        break-leaves: true
+    combat:
+      enabled: true
+      duration-seconds: 30
+      drop-experience: true
+      teleport-to-spawn-on-rejoin: true
+      block-commands: true
+      block-teleports: true
+      block-elytra: true
+      block-flight: true
+      block-mounting: true
+      block-ender-pearl: true
+      block-chorus-fruit: true
+      block-end-gateway: true
+
+  # Relaxed: no combat-log penalties at all, and the Amethyst tools never lose
+  # durability.
+  casual:
+    amethyst-tools:
+      pickaxe:
+        damage-tool: false
+      axe:
+        damage-tool: false
+        break-leaves: true
+    combat:
+      enabled: false

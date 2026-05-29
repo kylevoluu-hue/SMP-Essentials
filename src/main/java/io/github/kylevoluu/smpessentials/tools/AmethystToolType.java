@@ -11,13 +11,13 @@ import java.util.Locale;
  */
 public enum AmethystToolType {
 
-    PICKAXE("amethyst_pickaxe", Material.DIAMOND_PICKAXE, "Amethyst Pickaxe",
+    PICKAXE("amethyst_pickaxe", Material.NETHERITE_PICKAXE, "Amethyst Pickaxe",
             new String[]{
                     "&7Mines a &d3x3&7 area at once.",
                     "&7Works with Fortune & Silk Touch."
             }),
 
-    AXE("amethyst_axe", Material.DIAMOND_AXE, "Amethyst Axe",
+    AXE("amethyst_axe", Material.NETHERITE_AXE, "Amethyst Axe",
             new String[]{
                     "&7Fells an entire tree in one chop.",
                     "&7Works with Fortune & Silk Touch."

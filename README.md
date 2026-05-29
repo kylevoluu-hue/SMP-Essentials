@@ -30,6 +30,8 @@ configurable safety cap so it never lags the server. Optionally clears the leave
 too.
 
 ### 🔮 Amethyst tools are real tools
+- **Netherite design** — they use the netherite tool model (and its durability /
+  fire-resistance), just renamed *Amethyst Pickaxe* / *Amethyst Axe* with a glint.
 - **Craftable** with a recipe that mirrors the vanilla layout, swapping the head
   pieces for **1 amethyst shard + 2 netherite ingots** (see [Recipes](#recipes)).
 - **Enchantable** — apply Efficiency, Fortune, Silk Touch, Unbreaking, Mending,
@@ -40,13 +42,37 @@ too.
 - Also obtainable via `/smpe give` for admins.
 
 ### ⚔️ Anti-combat-log
-When a player is hit by another player they're put **in combat for 20 seconds**
-(each new hit resets the timer to the full 20s). While in combat:
-- A countdown is shown on the **action bar**.
+Combat is **strictly player-vs-player**: the timer is only ever started by a
+player hitting another player (melee or a player-fired projectile) — mob and
+environmental damage never tag you. When tagged, a player is **in combat for 20
+seconds**, and **every new hit resets the timer back to the full 20s**. While in
+combat:
+- A live countdown is shown as a **boss bar** (a draining bar at the top of the
+  screen) and on the **action bar** — both configurable (`boss-bar`,
+  `boss-bar-color`, `action-bar`).
 - **Escape commands** (`/tp`, `/tpa`, `/home`, `/spawn`, `/warp`, `/rtp`, `/back`, …)
   are blocked.
 - **Teleports** from any plugin (command/plugin/spectate) are blocked. **Ender
   pearls and chorus fruit are still allowed** — they're legitimate combat movement.
+
+Exactly **what is disabled in combat is fully configurable** — every form of
+transport has its own on/off toggle:
+
+| Toggle | Blocks |
+|---|---|
+| `block-commands` | the commands in `blocked-commands` |
+| `block-teleports` | generic teleports in `blocked-teleport-causes` (COMMAND/PLUGIN/SPECTATE/…) |
+| `block-elytra` | elytra gliding |
+| `block-flight` | flying (creative/allow-flight) |
+| `block-mounting` | boarding boats, minecarts, horses, pigs, striders, camels, llamas, … |
+| `block-dismounting` | leaving a vehicle or mount |
+| `block-ender-pearl` | ender pearl teleports |
+| `block-chorus-fruit` | chorus fruit teleports |
+| `block-end-gateway` | end gateway teleports |
+| `block-exit-bed` | the teleport when leaving a bed |
+
+Everything except `block-commands`/`block-teleports` is off by default, and all
+of these (plus the editable command/teleport-cause lists) can be set per-preset.
 
 If a player **disconnects while in combat** ("combat logging"):
 - They are **slain**: their full **inventory + armor** drops as loot at the spot
@@ -225,6 +251,7 @@ tools to be admin-only.
 |---|---|---|
 | `/smpe give <pickaxe\|axe> [player]` | Give an Amethyst tool to yourself or another player | `smpessentials.give` |
 | `/smpe combat [player]` | Show how long you (or another player) are in combat | `smpessentials.combat.check` |
+| `/smpe preset [list\|<name>]` | List the available presets, or apply one live | `smpessentials.reload` |
 | `/smpe reload` | Reload `config.yml` | `smpessentials.reload` |
 
 Alias: `/smpessentials`.
@@ -240,6 +267,26 @@ Alias: `/smpessentials`.
 | `smpessentials.combat.bypass` | Exempt from combat tagging, command/teleport blocking, and combat-log penalties | nobody |
 
 ---
+
+## Presets
+
+Instead of tweaking every option by hand, pick a **preset** — a named bundle of
+settings applied on top of the rest of your config. Set `active-preset` at the
+top of `config.yml`:
+
+| Preset | What it does |
+|---|---|
+| `custom` | Ignore presets; use the exact values in `config.yml` (default) |
+| `default` | Balanced settings (same as the shipped defaults) |
+| `hardcore` | 30s combat timer, no escaping by flight/glide/ride/pearl/chorus, trees drop their leaves |
+| `casual` | No combat-log penalties at all, tools never lose durability |
+
+```yaml
+active-preset: hardcore
+```
+then run `/smpe reload`. You can also switch **live** (until the next restart)
+with `/smpe preset hardcore`, and list options with `/smpe preset list`. Presets
+live in the `presets:` section at the bottom of `config.yml` — add your own there.
 
 ## Configuration
 
@@ -259,16 +306,26 @@ amethyst-tools:
 
 combat:
   enabled: true
-  duration-seconds: 20     # combat timer length; resets on each new hit
-  tag-on-pvp: true         # tag players who fight players
-  tag-on-mob-damage: false # also tag on damage from mobs
+  duration-seconds: 20     # player-vs-player only; resets to full on each new hit
   drop-experience: true    # drop XP when someone combat-logs
-  block-commands: true
+  # --- what is disabled while in combat (each is its own toggle) ---
+  block-commands: true     # block the commands in blocked-commands
+  block-teleports: true    # block the teleport causes in blocked-teleport-causes
+  block-elytra: false      # prevent gliding away with an elytra
+  block-flight: false      # cancel flight (creative/allow-flight)
+  block-mounting: false    # boarding boats/minecarts/horses/etc.
+  block-dismounting: false # leaving a vehicle or mount
+  block-ender-pearl: false # ender pearl teleports
+  block-chorus-fruit: false# chorus fruit teleports
+  block-end-gateway: false # end gateway teleports
+  block-exit-bed: false    # the teleport when leaving a bed
   blocked-commands: [tp, tpa, tpaccept, tpahere, tpyes, teleport, home, sethome,
     homes, spawn, warp, warps, rtp, wild, randomtp, back, lobby, hub, server]
-  blocked-teleport-causes: [COMMAND, PLUGIN, SPECTATE]  # ender pearls/chorus allowed
+  blocked-teleport-causes: [COMMAND, PLUGIN, SPECTATE]  # generic causes (pearl/chorus have own toggles)
   teleport-to-spawn-on-rejoin: true
-  action-bar: true
+  action-bar: true         # text countdown above the hotbar
+  boss-bar: true           # draining boss-bar countdown at the top of the screen
+  boss-bar-color: RED      # RED, PINK, BLUE, GREEN, YELLOW, PURPLE, WHITE
 
 messages:
   prefix: "&5&lSMP &8» &r"
