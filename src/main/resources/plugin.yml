@@ -1,0 +1,39 @@
+name: SMPEssentials
+version: '${project.version}'
+main: io.github.kylevoluu.smpessentials.SmpEssentials
+api-version: '26.1'
+author: gangymanny6741
+description: Amethyst tools (3x3 pickaxe, tree-felling axe) and anti-combat-log for your SMP.
+website: https://github.com/kylevoluu-hue/smp-essentials
+folia-supported: false
+
+commands:
+  smpe:
+    description: SMP Essentials admin and info command.
+    usage: |-
+      /smpe give <pickaxe|axe> [player] - Give an Amethyst tool
+      /smpe combat [player] - Check combat status
+      /smpe reload - Reload the configuration
+    aliases: [smpessentials]
+
+permissions:
+  smpessentials.*:
+    description: Grants all SMP Essentials permissions.
+    default: op
+    children:
+      smpessentials.give: true
+      smpessentials.reload: true
+      smpessentials.combat.bypass: true
+      smpessentials.combat.check: true
+  smpessentials.give:
+    description: Allows giving Amethyst tools via /smpe give.
+    default: op
+  smpessentials.reload:
+    description: Allows reloading the configuration via /smpe reload.
+    default: op
+  smpessentials.combat.check:
+    description: Allows checking your own combat status via /smpe combat.
+    default: true
+  smpessentials.combat.bypass:
+    description: Exempts the player from combat tagging, command blocking and combat-log penalties.
+    default: false
