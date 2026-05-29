@@ -20,12 +20,17 @@ public final class ToolDamage {
     private ToolDamage() {
     }
 
+    private static Enchantment unbreakingCache;
+
     private static Enchantment unbreaking() {
         // Enchantments are registry-backed on Paper 26.1 (the old static fields
-        // are deprecated). Resolve UNBREAKING from the registry.
-        return RegistryAccess.registryAccess()
-                .getRegistry(RegistryKey.ENCHANTMENT)
-                .get(NamespacedKey.minecraft("unbreaking"));
+        // are deprecated). Resolve UNBREAKING from the registry once and cache it.
+        if (unbreakingCache == null) {
+            unbreakingCache = RegistryAccess.registryAccess()
+                    .getRegistry(RegistryKey.ENCHANTMENT)
+                    .get(NamespacedKey.minecraft("unbreaking"));
+        }
+        return unbreakingCache;
     }
 
     /**
