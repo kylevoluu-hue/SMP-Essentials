@@ -40,13 +40,17 @@ amethyst-tools:
   sound-effects: true
 
   pickaxe:
-    # Apply durability damage to the tool for the extra blocks broken in the 3x3.
-    # Unbreaking enchantments are respected.
-    damage-tool: true
+    # Charge extra durability for the extra blocks broken in the 3x3.
+    # false (default) = the tool only wears 1 point per swing, exactly like
+    # normal 1x1 mining. true = each extra block also costs durability.
+    # Unbreaking is respected either way.
+    damage-tool: false
 
   axe:
-    # Apply durability damage for each extra log felled. Unbreaking is respected.
-    damage-tool: true
+    # Charge extra durability for each extra log felled.
+    # false (default) = the tool only wears 1 point per chop, like normal 1x1
+    # mining. true = each extra log also costs durability. Unbreaking respected.
+    damage-tool: false
     # Safety cap on how many logs a single break may fell (prevents lag on huge
     # custom/jungle trees).
     max-logs: 256
@@ -173,9 +177,9 @@ presets:
   default:
     amethyst-tools:
       pickaxe:
-        damage-tool: true
+        damage-tool: false
       axe:
-        damage-tool: true
+        damage-tool: false
         break-leaves: false
     combat:
       enabled: true

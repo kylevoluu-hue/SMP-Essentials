@@ -56,7 +56,7 @@ public final class AreaMiningListener implements Listener {
 
         Block origin = event.getBlock();
         BlockFace face = resolveFace(player);
-        boolean damageTool = plugin.getConfig().getBoolean("amethyst-tools.pickaxe.damage-tool", true);
+        boolean damageTool = plugin.getConfig().getBoolean("amethyst-tools.pickaxe.damage-tool", false);
 
         if (ToolSoundListener.enabled(plugin)) {
             ToolSoundListener.playChime(player);

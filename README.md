@@ -279,7 +279,7 @@ top of `config.yml`:
 | `custom` | Ignore presets; use the exact values in `config.yml` (default) |
 | `default` | Balanced settings (same as the shipped defaults) |
 | `hardcore` | 30s combat timer, no escaping by flight/glide/ride/pearl/chorus, trees drop their leaves |
-| `casual` | No combat-log penalties at all, tools never lose durability |
+| `casual` | No combat-log penalties at all; tools wear at the normal 1x1 rate |
 
 ```yaml
 active-preset: hardcore
@@ -298,9 +298,9 @@ amethyst-tools:
   recipes-enabled: true    # register the crafting recipes
   sound-effects: true      # amethyst chime when mining/holding a tool
   pickaxe:
-    damage-tool: true      # consume durability for the extra blocks (Unbreaking respected)
+    damage-tool: false     # false = 1 durability per swing (like 1x1 mining); true = charge per extra block
   axe:
-    damage-tool: true
+    damage-tool: false     # false = 1 durability per chop; true = charge per extra log
     max-logs: 256          # safety cap on logs felled per chop
     break-leaves: false    # also clear leaves when felling
 
@@ -346,8 +346,10 @@ messages:
   per-player guard prevents the simulated events from looping back on themselves.
 - **Tree feller** flood-fills connected logs through the 26-block neighbourhood up
   to `max-logs`, firing a `BlockBreakEvent` per log for the same protection safety.
-- **Durability** is applied per extra block using the vanilla Unbreaking
-  probability; when the tool would break, the ability stops immediately.
+- **Durability**: by default the tool only loses 1 point per swing/chop — the
+  extra blocks the ability breaks are free, so a netherite-tier tool lasts its
+  full ~2031 uses. Set `damage-tool: true` to charge per extra block instead
+  (Unbreaking respected; the ability stops if the tool would break).
 - **Combat tagging** stamps an expiry timestamp on both fighters; every new hit
   re-stamps it to the full duration. A once-per-second task refreshes the action
   bar and clears expired tags.

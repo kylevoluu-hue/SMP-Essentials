@@ -62,7 +62,7 @@ public final class TreeFellerListener implements Listener {
         }
 
         int maxLogs = plugin.getConfig().getInt("amethyst-tools.axe.max-logs", 256);
-        boolean damageTool = plugin.getConfig().getBoolean("amethyst-tools.axe.damage-tool", true);
+        boolean damageTool = plugin.getConfig().getBoolean("amethyst-tools.axe.damage-tool", false);
         boolean breakLeaves = plugin.getConfig().getBoolean("amethyst-tools.axe.break-leaves", false);
 
         if (ToolSoundListener.enabled(plugin)) {
