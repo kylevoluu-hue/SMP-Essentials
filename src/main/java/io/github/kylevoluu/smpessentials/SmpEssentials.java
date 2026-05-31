@@ -1,10 +1,13 @@
 package io.github.kylevoluu.smpessentials;
 
+import io.github.kylevoluu.smpessentials.bucket.AmethystBucketListener;
 import io.github.kylevoluu.smpessentials.combatlog.CombatLogListener;
 import io.github.kylevoluu.smpessentials.combatlog.CombatTagManager;
+import io.github.kylevoluu.smpessentials.command.BedCommand;
 import io.github.kylevoluu.smpessentials.command.SmpCommand;
 import io.github.kylevoluu.smpessentials.keys.Keys;
 import io.github.kylevoluu.smpessentials.mining.AreaMiningListener;
+import io.github.kylevoluu.smpessentials.sword.AmethystSwordListener;
 import io.github.kylevoluu.smpessentials.tools.ToolRegistry;
 import io.github.kylevoluu.smpessentials.tools.ToolSoundListener;
 import io.github.kylevoluu.smpessentials.treefeller.TreeFellerListener;
@@ -37,15 +40,21 @@ public final class SmpEssentials extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new AreaMiningListener(this), this);
         getServer().getPluginManager().registerEvents(new TreeFellerListener(this), this);
         getServer().getPluginManager().registerEvents(new ToolSoundListener(this), this);
+        getServer().getPluginManager().registerEvents(new AmethystSwordListener(this), this);
+        getServer().getPluginManager().registerEvents(new AmethystBucketListener(this, messages), this);
         getServer().getPluginManager().registerEvents(
                 new CombatLogListener(this, combatManager, messages), this);
 
-        // Command
+        // Commands
         PluginCommand command = getCommand("smpe");
         if (command != null) {
             SmpCommand handler = new SmpCommand(this, combatManager, messages);
             command.setExecutor(handler);
             command.setTabCompleter(handler);
+        }
+        PluginCommand bed = getCommand("bed");
+        if (bed != null) {
+            bed.setExecutor(new BedCommand(messages));
         }
 
         // Recipes + combat ticker

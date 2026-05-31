@@ -21,6 +21,24 @@ public enum AmethystToolType {
             new String[]{
                     "&7Fells an entire tree in one chop.",
                     "&7Works with Fortune & Silk Touch."
+            }),
+
+    SHOVEL("amethyst_shovel", Material.NETHERITE_SHOVEL, "Amethyst Shovel",
+            new String[]{
+                    "&7Digs a &d5x5&7 area at once.",
+                    "&7Dirt, sand, gravel and the like."
+            }),
+
+    SWORD("amethyst_sword", Material.NETHERITE_SWORD, "Amethyst Sword",
+            new String[]{
+                    "&7Base damage &d10&7.",
+                    "&7Drops dripstone onto your target."
+            }),
+
+    BUCKET("amethyst_bucket", Material.BUCKET, "Amethyst Bucket",
+            new String[]{
+                    "&7Drains whole pools of water/lava.",
+                    "&7Sneak + right-click to switch what you pour."
             });
 
     private final String markerValue;
@@ -59,6 +77,9 @@ public enum AmethystToolType {
         return switch (arg.toLowerCase(Locale.ROOT)) {
             case "pickaxe", "pick", "pickaxe3x3" -> PICKAXE;
             case "axe", "treeaxe", "treecapitator" -> AXE;
+            case "shovel", "spade" -> SHOVEL;
+            case "sword" -> SWORD;
+            case "bucket" -> BUCKET;
             default -> null;
         };
     }

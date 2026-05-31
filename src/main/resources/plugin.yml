@@ -11,11 +11,15 @@ commands:
   smpe:
     description: SMP Essentials admin and info command.
     usage: |-
-      /smpe give <pickaxe|axe> [player] - Give an Amethyst tool
+      /smpe give <pickaxe|axe|shovel|sword|bucket> [player] - Give an Amethyst tool
       /smpe combat [player] - Check combat status
       /smpe preset [list|<name>] - List or apply a config preset
       /smpe reload - Reload the configuration
     aliases: [smpessentials]
+  bed:
+    description: Teleport to your bed / respawn point.
+    usage: /bed
+    permission: smpessentials.bed
 
 permissions:
   smpessentials.*:
@@ -25,6 +29,10 @@ permissions:
       smpessentials.give: true
       smpessentials.reload: true
       smpessentials.combat.check: true
+      smpessentials.bed: true
+  smpessentials.bed:
+    description: Allows using /bed to teleport to your respawn point.
+    default: true
   smpessentials.give:
     description: Allows giving Amethyst tools via /smpe give.
     default: op

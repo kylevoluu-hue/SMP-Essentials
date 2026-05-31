@@ -29,17 +29,36 @@ every wood type (including huge jungle/dark-oak trunks and nether stems), with a
 configurable safety cap so it never lags the server. Optionally clears the leaves
 too.
 
+### 🥄 Amethyst Shovel — 5×5 digging
+Digs a **5×5 area** in the plane you're facing. Only shovel-appropriate blocks
+(dirt, grass, sand, gravel, clay, soul sand, etc.) are affected, so it won't tear
+through stone or ores.
+
+### 🗡️ Amethyst Sword — dripstone strike
+Base attack damage **10** (scales with crits and Sharpness). On every hit, a
+**pointed dripstone is summoned above your target** and falls onto it for bonus
+damage, then **vanishes the instant it lands** (no block, no drop). Bonus damage
+and spawn height are configurable.
+
+### 🪣 Amethyst Bucket — infinite fluid tank
+Right-click a water or lava pool to **drain the whole connected body** into the
+bucket (auto-detecting the fluid), with **unlimited, separate** water and lava
+storage. **Sneak + right-click** switches which stored fluid you pour, and
+right-clicking a block places a source of it. (A configurable per-drain cap keeps
+it from swallowing an entire ocean.)
+
 ### 🔮 Amethyst tools are real tools
-- **Netherite design** — they use the netherite tool model (and its durability /
-  fire-resistance), just renamed *Amethyst Pickaxe* / *Amethyst Axe* with a glint.
-- **Craftable** with a recipe that mirrors the vanilla layout, swapping the head
-  pieces for **1 amethyst shard + 2 netherite ingots** (see [Recipes](#recipes)).
-- **Enchantable** — apply Efficiency, Fortune, Silk Touch, Unbreaking, Mending,
-  etc. at an enchanting table or anvil. Fortune and Silk Touch apply to **every**
-  block the ability breaks.
+- **Netherite design** — they use the netherite item models (and netherite
+  durability / fire-resistance), just renamed *Amethyst …* with a glint.
+- **Craftable but expensive** — every tool costs **1 amethyst block + 2 netherite
+  blocks** (see [Recipes](#recipes)).
+- **Enchantable** — apply Efficiency, Fortune, Silk Touch, Unbreaking, Sharpness,
+  Mending, etc. Fortune and Silk Touch apply to **every** block an ability breaks.
+- **Durability** — area tools only lose 1 point per swing by default (full
+  netherite lifespan); see `damage-tool` in the config.
 - **Amethyst chime sound** plays when you mine with one and when you select it on
   your hotbar.
-- Also obtainable via `/smpe give` for admins.
+- Also obtainable via `/smpe give <tool>` for admins.
 
 ### ⚔️ Anti-combat-log
 Combat is **strictly player-vs-player**: the timer is only ever started by a
@@ -223,25 +242,18 @@ target/SMPEssentials.jar
 
 ## Recipes
 
-Both recipes mirror the vanilla diamond tool shape, but the **three head pieces**
-become **1 amethyst shard + 2 netherite ingots**.
+Every Amethyst tool is intentionally **expensive**: each costs **1 amethyst block
++ 2 netherite blocks** (`N` = netherite block, `A` = amethyst block, `S` = stick).
 
-**Amethyst Pickaxe**
 ```
-[ Netherite ] [ Amethyst ] [ Netherite ]
-              [   Stick  ]
-              [   Stick  ]
-```
-
-**Amethyst Axe**
-```
-[ Amethyst  ] [ Netherite ]
-[ Netherite ] [   Stick   ]
-              [   Stick   ]
+Amethyst Pickaxe     Amethyst Axe      Amethyst Shovel   Amethyst Sword    Amethyst Bucket
+   N A N                A N                 A                A                 N . N
+   . S .                N S                 N                N                 . A .
+   . S .                . S                 N                N
 ```
 
 Crafting can be disabled (`amethyst-tools.recipes-enabled: false`) if you want the
-tools to be admin-only.
+tools to be admin-only (via `/smpe give`).
 
 ---
 
@@ -249,10 +261,11 @@ tools to be admin-only.
 
 | Command | Description | Permission |
 |---|---|---|
-| `/smpe give <pickaxe\|axe> [player]` | Give an Amethyst tool to yourself or another player | `smpessentials.give` |
+| `/smpe give <pickaxe\|axe\|shovel\|sword\|bucket> [player]` | Give an Amethyst tool | `smpessentials.give` |
 | `/smpe combat [player]` | Show how long you (or another player) are in combat | `smpessentials.combat.check` |
 | `/smpe preset [list\|<name>]` | List the available presets, or apply one live | `smpessentials.reload` |
 | `/smpe reload` | Reload `config.yml` | `smpessentials.reload` |
+| `/bed` | Teleport to your bed / respawn point (warns if none; blocked in combat) | `smpessentials.bed` |
 
 Alias: `/smpessentials`.
 
@@ -264,6 +277,7 @@ Alias: `/smpessentials`.
 | `smpessentials.give` | Use `/smpe give` | op |
 | `smpessentials.reload` | Use `/smpe reload` | op |
 | `smpessentials.combat.check` | Check combat status | everyone |
+| `smpessentials.bed` | Use `/bed` | everyone |
 | `smpessentials.combat.bypass` | Exempt from combat tagging, command/teleport blocking, and combat-log penalties | nobody |
 
 ---

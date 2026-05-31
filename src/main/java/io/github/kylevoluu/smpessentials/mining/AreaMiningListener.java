@@ -21,7 +21,9 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Makes the Amethyst Pickaxe mine a 3x3 area in the plane facing the player.
+ * Makes the Amethyst Pickaxe (3x3) and Amethyst Shovel (5x5) break an area in the
+ * plane facing the player. {@code Block#isPreferredTool} naturally restricts the
+ * shovel to dirt/sand/gravel-type blocks and the pickaxe to ores/stone.
  *
  * <p>Each extra block fires its own {@link BlockBreakEvent} so land-protection
  * plugins (WorldGuard, GriefPrevention, …) can veto it. A per-player guard set
@@ -50,13 +52,24 @@ public final class AreaMiningListener implements Listener {
         }
 
         ItemStack tool = player.getInventory().getItemInMainHand();
-        if (!AmethystToolFactory.is(tool, AmethystToolType.PICKAXE)) {
+        AmethystToolType type = AmethystToolFactory.typeOf(tool);
+        int radius;
+        boolean damageTool;
+        if (type == AmethystToolType.PICKAXE) {
+            radius = Math.max(0, plugin.getConfig().getInt("amethyst-tools.pickaxe.radius", 1));
+            damageTool = plugin.getConfig().getBoolean("amethyst-tools.pickaxe.damage-tool", false);
+        } else if (type == AmethystToolType.SHOVEL) {
+            radius = Math.max(0, plugin.getConfig().getInt("amethyst-tools.shovel.radius", 2));
+            damageTool = plugin.getConfig().getBoolean("amethyst-tools.shovel.damage-tool", false);
+        } else {
+            return;
+        }
+        if (radius == 0) {
             return;
         }
 
         Block origin = event.getBlock();
         BlockFace face = resolveFace(player);
-        boolean damageTool = plugin.getConfig().getBoolean("amethyst-tools.pickaxe.damage-tool", false);
 
         if (ToolSoundListener.enabled(plugin)) {
             ToolSoundListener.playChime(player);
@@ -64,7 +77,7 @@ public final class AreaMiningListener implements Listener {
 
         processing.add(player.getUniqueId());
         try {
-            for (Block target : planeAround(origin, face)) {
+            for (Block target : planeAround(origin, face, radius)) {
                 if (target.equals(origin)) {
                     continue; // The origin is handled by the original event.
                 }
@@ -98,27 +111,30 @@ public final class AreaMiningListener implements Listener {
         return BlockFace.UP;
     }
 
-    /** The 3x3 set of blocks in the plane perpendicular to {@code face}, centred on {@code origin}. */
-    private Set<Block> planeAround(Block origin, BlockFace face) {
+    /**
+     * The square of blocks (side = 2*radius+1) in the plane perpendicular to
+     * {@code face}, centred on {@code origin}. radius 1 = 3x3, radius 2 = 5x5.
+     */
+    private Set<Block> planeAround(Block origin, BlockFace face, int radius) {
         Set<Block> blocks = new HashSet<>();
         switch (face) {
             case UP, DOWN -> {
-                for (int dx = -1; dx <= 1; dx++) {
-                    for (int dz = -1; dz <= 1; dz++) {
+                for (int dx = -radius; dx <= radius; dx++) {
+                    for (int dz = -radius; dz <= radius; dz++) {
                         blocks.add(origin.getRelative(dx, 0, dz));
                     }
                 }
             }
             case NORTH, SOUTH -> {
-                for (int dx = -1; dx <= 1; dx++) {
-                    for (int dy = -1; dy <= 1; dy++) {
+                for (int dx = -radius; dx <= radius; dx++) {
+                    for (int dy = -radius; dy <= radius; dy++) {
                         blocks.add(origin.getRelative(dx, dy, 0));
                     }
                 }
             }
             default -> { // EAST, WEST and any diagonal fallback
-                for (int dy = -1; dy <= 1; dy++) {
-                    for (int dz = -1; dz <= 1; dz++) {
+                for (int dy = -radius; dy <= radius; dy++) {
+                    for (int dz = -radius; dz <= radius; dz++) {
                         blocks.add(origin.getRelative(0, dy, dz));
                     }
                 }

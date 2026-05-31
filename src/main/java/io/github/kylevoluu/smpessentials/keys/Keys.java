@@ -18,6 +18,23 @@ public final class Keys {
     /** Recipe key for the Amethyst Axe. */
     public static NamespacedKey RECIPE_AXE;
 
+    /** Recipe keys for the Shovel, Sword and Bucket. */
+    public static NamespacedKey RECIPE_SHOVEL;
+    public static NamespacedKey RECIPE_SWORD;
+    public static NamespacedKey RECIPE_BUCKET;
+
+    /** Marks a falling block spawned by the Amethyst Sword. */
+    public static NamespacedKey DRIPSTONE;
+
+    /** Attribute-modifier keys for the Amethyst Sword. */
+    public static NamespacedKey SWORD_ATTACK_DAMAGE;
+    public static NamespacedKey SWORD_ATTACK_SPEED;
+
+    /** Amethyst Bucket stored amounts and selected pour mode. */
+    public static NamespacedKey BUCKET_WATER;
+    public static NamespacedKey BUCKET_LAVA;
+    public static NamespacedKey BUCKET_MODE;
+
     private Keys() {
     }
 
@@ -25,5 +42,14 @@ public final class Keys {
         TOOL = new NamespacedKey(plugin, "amethyst_tool");
         RECIPE_PICKAXE = new NamespacedKey(plugin, "amethyst_pickaxe");
         RECIPE_AXE = new NamespacedKey(plugin, "amethyst_axe");
+        RECIPE_SHOVEL = new NamespacedKey(plugin, "amethyst_shovel");
+        RECIPE_SWORD = new NamespacedKey(plugin, "amethyst_sword");
+        RECIPE_BUCKET = new NamespacedKey(plugin, "amethyst_bucket");
+        DRIPSTONE = new NamespacedKey(plugin, "sword_dripstone");
+        SWORD_ATTACK_DAMAGE = new NamespacedKey(plugin, "sword_attack_damage");
+        SWORD_ATTACK_SPEED = new NamespacedKey(plugin, "sword_attack_speed");
+        BUCKET_WATER = new NamespacedKey(plugin, "bucket_water");
+        BUCKET_LAVA = new NamespacedKey(plugin, "bucket_lava");
+        BUCKET_MODE = new NamespacedKey(plugin, "bucket_mode");
     }
 }

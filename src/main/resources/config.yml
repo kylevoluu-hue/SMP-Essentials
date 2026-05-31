@@ -3,7 +3,7 @@
 #  Every option is documented. After editing, run /smpe reload (or restart).
 # ----------------------------------------------------------------------------
 #  COMMANDS (alias: /smpessentials)
-#    /smpe give <pickaxe|axe> [player]  Give an Amethyst tool   (smpessentials.give)
+#    /smpe give <pickaxe|axe|shovel|sword|bucket> [player]  Give an Amethyst tool   (smpessentials.give)
 #    /smpe combat [player]              Show combat status      (smpessentials.combat.check)
 #    /smpe preset [list|<name>]         List / apply a preset   (smpessentials.reload)
 #    /smpe reload                       Reload this file        (smpessentials.reload)
@@ -31,16 +31,18 @@ active-preset: custom
 amethyst-tools:
   # Master switch for the Amethyst pickaxe and axe abilities.
   enabled: true
-  # Register the crafting recipes (1 amethyst shard + 2 netherite ingots + sticks,
-  # in the vanilla diamond-tool layout). If false, tools are only obtainable via
-  # /smpe give.
+  # Register the crafting recipes. Every tool is expensive: 1 amethyst block +
+  # 2 netherite blocks (plus sticks for the pickaxe/axe). If false, tools are
+  # only obtainable via /smpe give.
   recipes-enabled: true
   # Play the amethyst block chime when an Amethyst tool is used to mine and when
   # a player selects one on their hotbar.
   sound-effects: true
 
   pickaxe:
-    # Charge extra durability for the extra blocks broken in the 3x3.
+    # Mining radius. 1 = 3x3, 2 = 5x5, etc. 0 disables the area effect.
+    radius: 1
+    # Charge extra durability for the extra blocks broken.
     # false (default) = the tool only wears 1 point per swing, exactly like
     # normal 1x1 mining. true = each extra block also costs durability.
     # Unbreaking is respected either way.
@@ -57,6 +59,26 @@ amethyst-tools:
     # Also break the tree's leaves when it is felled. Off by default (vanilla
     # leaves decay on their own).
     break-leaves: false
+
+  shovel:
+    # Dig radius. 2 = 5x5 (default), 1 = 3x3, 0 disables. Only shovel-appropriate
+    # blocks (dirt, sand, gravel, etc.) are dug.
+    radius: 2
+    # Same meaning as pickaxe.damage-tool (false = 1x1 wear rate).
+    damage-tool: false
+
+  sword:
+    # Bonus damage dealt by the dripstone that falls onto your target (the sword's
+    # base attack damage is 10, set on the item itself). 0 = dripstone is visual only.
+    dripstone-damage: 6.0
+    # How many blocks above the target the dripstone spawns.
+    dripstone-height: 5
+
+  bucket:
+    # Safety cap on how many fluid blocks a single right-click may drain from a
+    # connected pool (prevents draining an entire ocean and lagging the server).
+    # Stored amounts themselves are unlimited.
+    max-drain-blocks: 1024
 
 combat:
   # Master switch for the anti-combat-log system.
@@ -121,6 +143,7 @@ combat:
     - lobby
     - hub
     - server
+    - bed
   # Generic teleport causes cancelled while in combat (used when 'block-teleports'
   # is on). Ender pearl, chorus fruit, end gateway and exit-bed have their own
   # dedicated toggles above, so this list is mainly for the rest. Any valid
@@ -164,6 +187,12 @@ messages:
   combat-status-self-none: "&7You are not in combat."
   combat-status-other: "&e{player} &7is in combat for &c{seconds}s&7."
   combat-status-other-none: "&e{player} &7is not in combat."
+  bed-teleported: "&aTeleported to your bed."
+  bed-none: "&cYou don't have a bed set! Sleep in a bed to set your spawn first."
+  bucket-mode-switched: "&aNow pouring &e{mode}&a."
+  bucket-collected: "&aDrained &e{amount}&a {fluid} into your Amethyst Bucket."
+  bucket-placed: "&aPoured {fluid}."
+  bucket-empty: "&cYour Amethyst Bucket has no {fluid} stored."
 
 # ============================================================================
 #  PRESETS

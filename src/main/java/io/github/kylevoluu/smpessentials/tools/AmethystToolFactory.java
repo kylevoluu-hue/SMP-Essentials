@@ -2,9 +2,15 @@ package io.github.kylevoluu.smpessentials.tools;
 
 import io.github.kylevoluu.smpessentials.keys.Keys;
 import io.github.kylevoluu.smpessentials.util.Text;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -43,8 +49,42 @@ public final class AmethystToolFactory {
         // Mark the item so listeners/commands can identify it regardless of name edits.
         meta.getPersistentDataContainer().set(Keys.TOOL, PersistentDataType.STRING, type.markerValue());
 
+        if (type == AmethystToolType.SWORD) {
+            applySwordAttributes(meta);
+        }
+
         item.setItemMeta(meta);
+
+        if (type == AmethystToolType.BUCKET) {
+            AmethystBucket.initialize(item);
+        }
         return item;
+    }
+
+    /**
+     * Give the sword a base attack damage of 10 (player base 1 + 9) and a normal
+     * sword swing speed. Setting modifiers via the API replaces the material's
+     * default ones, so we set both. Crits and Sharpness still scale on top.
+     */
+    private static void applySwordAttributes(ItemMeta meta) {
+        Attribute attackDamage = attribute("attack_damage");
+        Attribute attackSpeed = attribute("attack_speed");
+        if (attackDamage != null) {
+            meta.addAttributeModifier(attackDamage, new AttributeModifier(
+                    Keys.SWORD_ATTACK_DAMAGE, 9.0,
+                    AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+        }
+        if (attackSpeed != null) {
+            meta.addAttributeModifier(attackSpeed, new AttributeModifier(
+                    Keys.SWORD_ATTACK_SPEED, -2.4,
+                    AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+        }
+    }
+
+    private static Attribute attribute(String key) {
+        return RegistryAccess.registryAccess()
+                .getRegistry(RegistryKey.ATTRIBUTE)
+                .get(NamespacedKey.minecraft(key));
     }
 
     /** Return the Amethyst tool type of an item, or {@code null} if it is not one. */
