@@ -31,6 +31,7 @@ jobs:
           cd resourcepack
           zip -r ../SMPEssentials-ResourcePack.zip . -x '*.md'
           cd ..
+          echo "PACK_SHA1=$(sha1sum SMPEssentials-ResourcePack.zip | cut -d' ' -f1)" >> "$GITHUB_ENV"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -53,6 +54,10 @@ jobs:
             Automatically built artifacts (Paper 26.1.2, Java 25):
             - SMPEssentials.jar — the plugin
             - SMPEssentials-ResourcePack.zip — custom item textures (optional; Java client)
+
+            Resource-pack URL:
+            https://github.com/kylevoluu-hue/SMP-Essentials/releases/download/latest/SMPEssentials-ResourcePack.zip
+            Resource-pack SHA-1: ${{ env.PACK_SHA1 }}
           files: |
             target/SMPEssentials.jar
             SMPEssentials-ResourcePack.zip
