@@ -139,6 +139,83 @@ troll-staff:
   cooldown-ms: 1000
   radius: 24
 
+# Warden Crossbow: right-click fires a sonic boom (3 with Multishot).
+warden-crossbow:
+  enabled: true
+  energy-cost: 25
+  cooldown-ms: 1500
+  range: 24
+  damage: 10.0
+  knockback: 1.2
+
+# Storm Scepter: lightning bow / sunken / vex-summon (sneak to switch).
+storm-scepter:
+  enabled: true
+  lightning:
+    energy-cost: 20
+    cooldown-ms: 1200
+    range: 40
+  sunken:
+    energy-cost: 30
+    cooldown-ms: 4000
+    damage: 8.0
+  summon:
+    energy-cost: 35
+    cooldown-ms: 6000
+    seconds: 20
+    vex-damage: 2.0
+
+# Warden Wand: bat-summon / spectral-arrow range / warden boss (sneak to switch).
+warden-wand:
+  enabled: true
+  summon:
+    energy-cost: 30
+    cooldown-ms: 5000
+    seconds: 8
+    radius: 8
+    damage: 1.0
+  range:
+    energy-cost: 15
+    cooldown-ms: 800
+    arrow-damage: 4.0
+  boss:
+    cooldown-ms: 60000
+    seconds: 45
+    bonus-health: 40.0
+    aura-radius: 12
+
+# Ender Wand: ender pearls / wither-levitation / mini-dragon (sneak to switch).
+ender-wand:
+  enabled: true
+  pearls:
+    energy-cost: 10
+    cooldown-ms: 600
+  ranged:
+    energy-cost: 20
+    cooldown-ms: 1500
+    wither-ticks: 120
+    levitation-ticks: 80
+    cloud-ticks: 100
+  summon:
+    enabled: true        # spawns a real ender dragon (destructive; approximate)
+    energy-cost: 50
+    cooldown-ms: 15000
+    seconds: 6
+    damage: 10.0
+
+# Cloning Cane: confusion decoys / exploding clones; count scales with mob kills.
+cloning-cane:
+  enabled: true
+  energy-cost: 25
+  cooldown-ms: 3000
+  kills-per-clone: 20
+  max-clones: 5
+  confusion:
+    life-ticks: 80
+  explode:
+    power: 2.0
+    max-ticks: 120
+
 combat:
   # Master switch for the anti-combat-log system.
   enabled: true

@@ -4,8 +4,13 @@ import io.github.kylevoluu.smpessentials.ability.AbilityManager;
 import io.github.kylevoluu.smpessentials.blaze.BlazeSwordListener;
 import io.github.kylevoluu.smpessentials.blaze.BlazeWandListener;
 import io.github.kylevoluu.smpessentials.bucket.AmethystBucketListener;
+import io.github.kylevoluu.smpessentials.cloning.CloningCaneListener;
 import io.github.kylevoluu.smpessentials.data.MobKills;
+import io.github.kylevoluu.smpessentials.enderwand.EnderWandListener;
+import io.github.kylevoluu.smpessentials.stormscepter.StormScepterListener;
 import io.github.kylevoluu.smpessentials.troll.TrollStaffListener;
+import io.github.kylevoluu.smpessentials.wardencrossbow.WardenCrossbowListener;
+import io.github.kylevoluu.smpessentials.wardenwand.WardenWandListener;
 import io.github.kylevoluu.smpessentials.combatlog.CombatLogListener;
 import io.github.kylevoluu.smpessentials.combatlog.CombatTagManager;
 import io.github.kylevoluu.smpessentials.command.BedCommand;
@@ -59,6 +64,11 @@ public final class SmpEssentials extends JavaPlugin {
         // Ability items (shared energy/cooldown system)
         getServer().getPluginManager().registerEvents(new MobKills(), this);
         getServer().getPluginManager().registerEvents(new TrollStaffListener(this, abilityManager), this);
+        getServer().getPluginManager().registerEvents(new WardenCrossbowListener(this, abilityManager), this);
+        getServer().getPluginManager().registerEvents(new StormScepterListener(this, abilityManager), this);
+        getServer().getPluginManager().registerEvents(new WardenWandListener(this, abilityManager), this);
+        getServer().getPluginManager().registerEvents(new EnderWandListener(this, abilityManager), this);
+        getServer().getPluginManager().registerEvents(new CloningCaneListener(this, abilityManager), this);
 
         // Commands
         PluginCommand command = getCommand("smpe");

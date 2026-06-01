@@ -43,6 +43,12 @@ public final class Keys {
     public static NamespacedKey ENDER_WAND_MODE;
     public static NamespacedKey CLONING_MODE;
 
+    /** Projectile / summoned-entity markers. */
+    public static NamespacedKey WARDEN_ARROW;
+    public static NamespacedKey ENDER_PROJECTILE;
+    public static NamespacedKey SUMMONED;
+    public static NamespacedKey WARDEN_BOSS_HP;
+
     /** Marks a falling block spawned by the Amethyst Sword. */
     public static NamespacedKey DRIPSTONE;
 
@@ -87,6 +93,10 @@ public final class Keys {
         WARDEN_WAND_MODE = new NamespacedKey(plugin, "warden_wand_mode");
         ENDER_WAND_MODE = new NamespacedKey(plugin, "ender_wand_mode");
         CLONING_MODE = new NamespacedKey(plugin, "cloning_mode");
+        WARDEN_ARROW = new NamespacedKey(plugin, "warden_arrow");
+        ENDER_PROJECTILE = new NamespacedKey(plugin, "ender_projectile");
+        SUMMONED = new NamespacedKey(plugin, "summoned");
+        WARDEN_BOSS_HP = new NamespacedKey(plugin, "warden_boss_hp");
         DRIPSTONE = new NamespacedKey(plugin, "sword_dripstone");
         BLAZE_FIREBALL = new NamespacedKey(plugin, "blaze_fireball");
         WAND_MODE = new NamespacedKey(plugin, "wand_mode");

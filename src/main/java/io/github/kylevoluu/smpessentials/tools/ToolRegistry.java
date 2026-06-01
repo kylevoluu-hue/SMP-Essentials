@@ -109,6 +109,52 @@ public final class ToolRegistry {
         troll.setIngredient('S', Material.STICK);
         troll.setIngredient('K', Material.SCULK_SENSOR);
         Bukkit.addRecipe(troll);
+
+        // Warden Crossbow:  E C E   (E = echo shard, C = crossbow, S = sculk catalyst)
+        //                   E S E
+        ShapedRecipe wardenCrossbow = new ShapedRecipe(Keys.RECIPE_WARDEN_CROSSBOW,
+                AmethystToolFactory.create(AmethystToolType.WARDEN_CROSSBOW));
+        wardenCrossbow.shape("ECE", "ESE");
+        wardenCrossbow.setIngredient('E', Material.ECHO_SHARD);
+        wardenCrossbow.setIngredient('C', Material.CROSSBOW);
+        wardenCrossbow.setIngredient('S', Material.SCULK_CATALYST);
+        Bukkit.addRecipe(wardenCrossbow);
+
+        // Storm Scepter:  R / H / N  (lightning rod, heart of the sea, nether star)
+        ShapedRecipe scepter = new ShapedRecipe(Keys.RECIPE_STORM_SCEPTER,
+                AmethystToolFactory.create(AmethystToolType.STORM_SCEPTER));
+        scepter.shape(" R ", " H ", " N ");
+        scepter.setIngredient('R', Material.LIGHTNING_ROD);
+        scepter.setIngredient('H', Material.HEART_OF_THE_SEA);
+        scepter.setIngredient('N', Material.NETHER_STAR);
+        Bukkit.addRecipe(scepter);
+
+        // Warden Wand:  E / K / B  (echo shard, sculk shrieker, blaze rod)
+        ShapedRecipe wardenWand = new ShapedRecipe(Keys.RECIPE_WARDEN_WAND,
+                AmethystToolFactory.create(AmethystToolType.WARDEN_WAND));
+        wardenWand.shape(" E ", " K ", " B ");
+        wardenWand.setIngredient('E', Material.ECHO_SHARD);
+        wardenWand.setIngredient('K', Material.SCULK_SHRIEKER);
+        wardenWand.setIngredient('B', Material.BLAZE_ROD);
+        Bukkit.addRecipe(wardenWand);
+
+        // Ender Wand:  R / Y / B  (end rod, ender eye, blaze rod)
+        ShapedRecipe enderWand = new ShapedRecipe(Keys.RECIPE_ENDER_WAND,
+                AmethystToolFactory.create(AmethystToolType.ENDER_WAND));
+        enderWand.shape(" R ", " Y ", " B ");
+        enderWand.setIngredient('R', Material.END_ROD);
+        enderWand.setIngredient('Y', Material.ENDER_EYE);
+        enderWand.setIngredient('B', Material.BLAZE_ROD);
+        Bukkit.addRecipe(enderWand);
+
+        // Cloning Cane:  A / N / B  (amethyst shard, nether star, blaze rod)
+        ShapedRecipe cloningCane = new ShapedRecipe(Keys.RECIPE_CLONING_CANE,
+                AmethystToolFactory.create(AmethystToolType.CLONING_CANE));
+        cloningCane.shape(" A ", " N ", " B ");
+        cloningCane.setIngredient('A', Material.AMETHYST_SHARD);
+        cloningCane.setIngredient('N', Material.NETHER_STAR);
+        cloningCane.setIngredient('B', Material.BLAZE_ROD);
+        Bukkit.addRecipe(cloningCane);
     }
 
     /** Bind 'A' to an amethyst block and 'N' to a netherite block. */
@@ -128,6 +174,11 @@ public final class ToolRegistry {
         removeQuietly(Keys.RECIPE_BLAZE_WAND);
         removeQuietly(Keys.RECIPE_STORM_ROD);
         removeQuietly(Keys.RECIPE_TROLL_STAFF);
+        removeQuietly(Keys.RECIPE_WARDEN_CROSSBOW);
+        removeQuietly(Keys.RECIPE_STORM_SCEPTER);
+        removeQuietly(Keys.RECIPE_WARDEN_WAND);
+        removeQuietly(Keys.RECIPE_ENDER_WAND);
+        removeQuietly(Keys.RECIPE_CLONING_CANE);
     }
 
     private static void removeQuietly(NamespacedKey key) {
