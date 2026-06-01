@@ -26,20 +26,33 @@ jobs:
       - name: Build with Maven
         run: mvn -B -DskipTests clean package
 
-      - name: Upload plugin jar (artifact)
+      - name: Package resource pack
+        run: |
+          cd resourcepack
+          zip -r ../SMPEssentials-ResourcePack.zip . -x '*.md'
+          cd ..
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: SMPEssentials
-          path: target/SMPEssentials.jar
+          path: |
+            target/SMPEssentials.jar
+            SMPEssentials-ResourcePack.zip
           if-no-files-found: error
 
-      # Publish the jar to a rolling "latest" GitHub Release for a clean,
-      # one-click download link (no login required to grab a release asset).
-      - name: Publish jar to "latest" release
+      # Publish the jar + resource pack to a rolling "latest" GitHub Release for a
+      # clean, one-click download (no login required to grab a release asset).
+      - name: Publish to "latest" release
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
           name: Latest build
-          body: Automatically built SMPEssentials.jar (Paper 26.1.2, Java 25).
-          files: target/SMPEssentials.jar
+          body: |
+            Automatically built artifacts (Paper 26.1.2, Java 25):
+            - SMPEssentials.jar — the plugin
+            - SMPEssentials-ResourcePack.zip — custom item textures (optional; Java client)
+          files: |
+            target/SMPEssentials.jar
+            SMPEssentials-ResourcePack.zip
