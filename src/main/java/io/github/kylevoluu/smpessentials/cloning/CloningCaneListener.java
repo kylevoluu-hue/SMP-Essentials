@@ -9,6 +9,7 @@ import io.github.kylevoluu.smpessentials.tools.ModeStore;
 import io.github.kylevoluu.smpessentials.tools.ToolDamage;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.ArmorStand;
@@ -23,6 +24,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
@@ -100,33 +102,59 @@ public final class CloningCaneListener implements Listener {
     }
 
     private ArmorStand baseClone(Player player) {
-        Location loc = player.getLocation().add((Math.random() - 0.5) * 2, 0, (Math.random() - 0.5) * 2);
-        ArmorStand stand = player.getWorld().spawn(loc, ArmorStand.class);
-        stand.setArms(true);
-        stand.setBasePlate(false);
-        stand.customName(player.name());
-        stand.setCustomNameVisible(true);
-        stand.getPersistentDataContainer().set(Keys.SUMMONED, PersistentDataType.BYTE, (byte) 1);
-        EntityEquipment eq = stand.getEquipment();
-        if (eq != null) {
-            ItemStack[] armor = player.getInventory().getArmorContents();
-            if (armor.length == 4) {
-                eq.setBoots(armor[0]);
-                eq.setLeggings(armor[1]);
-                eq.setChestplate(armor[2]);
-                eq.setHelmet(armor[3]);
+        Location loc = player.getLocation().add(rand(), 0, rand());
+        ArmorStand stand = player.getWorld().spawn(loc, ArmorStand.class, s -> {
+            s.setArms(true);
+            s.setBasePlate(false);
+            s.customName(player.name());
+            s.setCustomNameVisible(true);
+            s.setCanPickupItems(false);
+            s.setInvulnerable(true);
+            s.setRotation(player.getLocation().getYaw(), 0);
+            s.getPersistentDataContainer().set(Keys.SUMMONED, PersistentDataType.BYTE, (byte) 1);
+            EntityEquipment eq = s.getEquipment();
+            if (eq != null) {
+                ItemStack[] armor = player.getInventory().getArmorContents();
+                if (armor.length == 4) {
+                    eq.setBoots(armor[0]);
+                    eq.setLeggings(armor[1]);
+                    eq.setChestplate(armor[2]);
+                    // Helmet = the player's actual head (their skin) so it reads as a clone.
+                    eq.setHelmet(armor[3] != null && !armor[3].getType().isAir() ? armor[3] : playerHead(player));
+                }
+                eq.setItemInMainHand(weaponLike(player));
             }
-        }
+        });
+        player.getWorld().spawnParticle(Particle.CLOUD, loc.clone().add(0, 1, 0), 15, 0.3, 0.6, 0.3, 0.02);
         return stand;
+    }
+
+    private ItemStack playerHead(Player player) {
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+        if (head.getItemMeta() instanceof SkullMeta meta) {
+            meta.setOwningPlayer(player);
+            head.setItemMeta(meta);
+        }
+        return head;
+    }
+
+    /** Give the clone the player's weapon (or a sword) so it looks armed, never the cane itself. */
+    private ItemStack weaponLike(Player player) {
+        ItemStack main = player.getInventory().getItemInMainHand();
+        if (main != null && main.getType().name().endsWith("_SWORD")) {
+            return main.clone();
+        }
+        return new ItemStack(Material.IRON_SWORD);
     }
 
     private void spawnDecoy(Player player) {
         ArmorStand stand = baseClone(player);
         stand.setGravity(false);
-        int life = plugin.getConfig().getInt("cloning-cane.confusion.life-ticks", 80);
+        stand.setGlowing(true);
+        int life = plugin.getConfig().getInt("cloning-cane.confusion.life-ticks", 100);
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (stand.isValid()) {
-                stand.getWorld().spawnParticle(Particle.CLOUD, stand.getLocation().add(0, 1, 0), 20, 0.3, 0.6, 0.3, 0.02);
+                stand.getWorld().spawnParticle(Particle.CLOUD, stand.getLocation().add(0, 1, 0), 25, 0.3, 0.7, 0.3, 0.02);
                 stand.remove();
             }
         }, life);
@@ -136,7 +164,7 @@ public final class CloningCaneListener implements Listener {
         ArmorStand stand = baseClone(player);
         stand.setGravity(true);
         double power = plugin.getConfig().getDouble("cloning-cane.explode.power", 2.0);
-        int maxTicks = plugin.getConfig().getInt("cloning-cane.explode.max-ticks", 120);
+        int fuse = plugin.getConfig().getInt("cloning-cane.explode.fuse-ticks", 100);
         World world = player.getWorld();
 
         new org.bukkit.scheduler.BukkitRunnable() {
@@ -144,29 +172,34 @@ public final class CloningCaneListener implements Listener {
 
             @Override
             public void run() {
-                if (!stand.isValid() || ticks >= maxTicks) {
-                    if (stand.isValid()) {
-                        stand.remove();
-                    }
+                if (!stand.isValid()) {
                     cancel();
                     return;
                 }
-                LivingEntity target = nearestEnemy(stand.getLocation(), player, 20);
+                LivingEntity target = nearestEnemy(stand.getLocation(), player, 24);
+                boolean reached = false;
                 if (target != null) {
-                    Vector dir = target.getLocation().toVector().subtract(stand.getLocation().toVector());
+                    Vector dir = target.getLocation().add(0, 0.5, 0).toVector().subtract(stand.getLocation().toVector());
                     if (dir.lengthSquared() > 0.01) {
-                        stand.setVelocity(dir.normalize().multiply(0.4));
+                        stand.setVelocity(dir.normalize().multiply(0.5));
                     }
-                    if (stand.getLocation().distanceSquared(target.getLocation()) <= 4) {
-                        world.createExplosion(stand.getLocation(), (float) power, false, false, player);
-                        stand.remove();
-                        cancel();
-                        return;
-                    }
+                    reached = stand.getLocation().distanceSquared(target.getLocation()) <= 4;
+                }
+                stand.getWorld().spawnParticle(Particle.CLOUD, stand.getLocation().add(0, 1, 0), 2, 0.1, 0.1, 0.1, 0);
+                // Explode on contact, or once the fuse runs out.
+                if (reached || ticks >= fuse) {
+                    world.createExplosion(stand.getLocation(), (float) power, false, false, player);
+                    stand.remove();
+                    cancel();
+                    return;
                 }
                 ticks++;
             }
         }.runTaskTimer(plugin, 0L, 2L);
+    }
+
+    private double rand() {
+        return (Math.random() - 0.5) * 2.5;
     }
 
     private LivingEntity nearestEnemy(Location from, Player owner, double radius) {

@@ -165,7 +165,7 @@ storm-scepter:
     seconds: 20
     vex-damage: 2.0
 
-# Warden Wand: bat-summon / spectral-arrow range / warden boss (sneak to switch).
+# Warden Wand: attacking bats / spectral volley / Warden Form (sneak to switch).
 warden-wand:
   enabled: true
   summon:
@@ -173,16 +173,22 @@ warden-wand:
     cooldown-ms: 5000
     seconds: 8
     radius: 8
-    damage: 1.0
+    bats: 8
+    damage: 1.0      # damage per second to enemies the bats swarm
   range:
     energy-cost: 15
     cooldown-ms: 800
+    arrows: 3        # spectral arrows fired per use
     arrow-damage: 4.0
   boss:
+    # Warden Form: bigger (scale), glowing, huge health, strength/speed, sonic boom.
+    charge-fraction: 0.5   # fraction of full energy needed to transform
     cooldown-ms: 60000
     seconds: 45
     bonus-health: 40.0
+    scale-bonus: 0.8       # added to the 1.0 base scale (so ~1.8x size)
     aura-radius: 12
+    sonic-damage: 8.0
 
 # Ender Wand: ender pearls / wither-levitation / mini-dragon (sneak to switch).
 ender-wand:
@@ -193,8 +199,10 @@ ender-wand:
   ranged:
     energy-cost: 20
     cooldown-ms: 1500
-    wither-ticks: 120
-    levitation-ticks: 80
+    wither-ticks: 140
+    wither-amplifier: 1     # Wither II is clearly visible/damaging
+    levitation-ticks: 60
+    radius: 3.5             # impact AoE so wither+levitation reliably land
     cloud-ticks: 100
   summon:
     enabled: true        # spawns a real ender dragon (destructive; approximate)
@@ -211,10 +219,10 @@ cloning-cane:
   kills-per-clone: 20
   max-clones: 5
   confusion:
-    life-ticks: 80
+    life-ticks: 100
   explode:
     power: 2.0
-    max-ticks: 120
+    fuse-ticks: 100      # clones chase enemies, then detonate (or after this fuse)
 
 # Optionally have the plugin send the resource pack to players on join (instead of
 # editing server.properties). Sending on join avoids the server.properties

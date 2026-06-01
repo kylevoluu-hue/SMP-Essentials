@@ -48,6 +48,7 @@ public final class Keys {
     public static NamespacedKey ENDER_PROJECTILE;
     public static NamespacedKey SUMMONED;
     public static NamespacedKey WARDEN_BOSS_HP;
+    public static NamespacedKey WARDEN_BOSS_SCALE;
 
     /** Marks a falling block spawned by the Amethyst Sword. */
     public static NamespacedKey DRIPSTONE;
@@ -97,6 +98,7 @@ public final class Keys {
         ENDER_PROJECTILE = new NamespacedKey(plugin, "ender_projectile");
         SUMMONED = new NamespacedKey(plugin, "summoned");
         WARDEN_BOSS_HP = new NamespacedKey(plugin, "warden_boss_hp");
+        WARDEN_BOSS_SCALE = new NamespacedKey(plugin, "warden_boss_scale");
         DRIPSTONE = new NamespacedKey(plugin, "sword_dripstone");
         BLAZE_FIREBALL = new NamespacedKey(plugin, "blaze_fireball");
         WAND_MODE = new NamespacedKey(plugin, "wand_mode");

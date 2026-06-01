@@ -8,6 +8,7 @@ import io.github.kylevoluu.smpessentials.tools.ModeStore;
 import io.github.kylevoluu.smpessentials.tools.ToolDamage;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EnderPearl;
@@ -109,19 +110,29 @@ public final class EnderWandListener implements Listener {
         if (!event.getEntity().getPersistentDataContainer().has(Keys.ENDER_PROJECTILE, PersistentDataType.BYTE)) {
             return;
         }
-        int witherTicks = plugin.getConfig().getInt("ender-wand.ranged.wither-ticks", 120);
-        int levitationTicks = plugin.getConfig().getInt("ender-wand.ranged.levitation-ticks", 80);
-        if (event.getHitEntity() instanceof LivingEntity target) {
-            target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, witherTicks, 1));
-            target.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, levitationTicks, 1));
+        int witherTicks = plugin.getConfig().getInt("ender-wand.ranged.wither-ticks", 140);
+        int levitationTicks = plugin.getConfig().getInt("ender-wand.ranged.levitation-ticks", 60);
+        int witherAmp = plugin.getConfig().getInt("ender-wand.ranged.wither-amplifier", 1);
+        double radius = plugin.getConfig().getDouble("ender-wand.ranged.radius", 3.5);
+
+        // AoE on impact so the target reliably gets BOTH wither and levitation,
+        // even when the snowball lands a hair off the entity.
+        Location at = event.getHitEntity() != null
+                ? event.getHitEntity().getLocation()
+                : event.getEntity().getLocation();
+        for (Entity e : at.getWorld().getNearbyEntities(at, radius, radius, radius)) {
+            if (e instanceof LivingEntity living) {
+                living.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, witherTicks, witherAmp));
+                living.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, levitationTicks, 0));
+            }
         }
-        Location at = event.getEntity().getLocation();
         at.getWorld().spawn(at, AreaEffectCloud.class, cloud -> {
-            cloud.setRadius(3.0f);
+            cloud.setRadius((float) radius);
             cloud.setDuration(plugin.getConfig().getInt("ender-wand.ranged.cloud-ticks", 100));
-            cloud.addCustomEffect(new PotionEffect(PotionEffectType.WITHER, witherTicks, 0), true);
+            cloud.addCustomEffect(new PotionEffect(PotionEffectType.WITHER, witherTicks, witherAmp), true);
             cloud.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, levitationTicks, 0), true);
         });
+        at.getWorld().spawnParticle(Particle.PORTAL, at, 40, 0.6, 0.6, 0.6, 0.1);
     }
 
     private void summon(Player player) {

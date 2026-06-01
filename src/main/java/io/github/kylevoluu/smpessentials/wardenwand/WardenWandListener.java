@@ -9,6 +9,8 @@ import io.github.kylevoluu.smpessentials.tools.ToolDamage;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -16,8 +18,10 @@ import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Bat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpectralArrow;
 import org.bukkit.event.EventHandler;
@@ -33,16 +37,21 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-/** The Warden Wand: modes summon (bats) / range (spectral arrows) / boss (morph). */
+/** The Warden Wand: modes summon (attacking bats) / range (spectral volley) / boss (Warden Form). */
 public final class WardenWandListener implements Listener {
 
     private static final String[] MODES = {"summon", "range", "boss"};
@@ -51,6 +60,7 @@ public final class WardenWandListener implements Listener {
     private final AbilityManager abilities;
     private final Map<UUID, ItemStack[]> bossInventories = new HashMap<>();
     private final Map<UUID, AttributeModifier> bossHpModifier = new HashMap<>();
+    private final Map<UUID, AttributeModifier> bossScaleModifier = new HashMap<>();
     private final Set<UUID> bossActive = new HashSet<>();
 
     public WardenWandListener(Plugin plugin, AbilityManager abilities) {
@@ -87,7 +97,8 @@ public final class WardenWandListener implements Listener {
                 player.getInventory().setItemInMainHand(item);
             }
             player.updateInventory();
-            player.sendActionBar(Component.text("Warden Wand mode: " + mode.toUpperCase(Locale.ROOT)));
+            player.sendActionBar(Component.text("Warden Wand mode: " + mode.toUpperCase(Locale.ROOT))
+                    .color(NamedTextColor.AQUA));
             return;
         }
 
@@ -98,6 +109,8 @@ public final class WardenWandListener implements Listener {
         }
     }
 
+    // --- summon: bats that chase and maul a target -------------------------
+
     private void summon(Player player) {
         double cost = plugin.getConfig().getDouble("warden-wand.summon.energy-cost", 30);
         long cd = plugin.getConfig().getLong("warden-wand.summon.cooldown-ms", 5000);
@@ -107,16 +120,27 @@ public final class WardenWandListener implements Listener {
         int seconds = plugin.getConfig().getInt("warden-wand.summon.seconds", 8);
         double radius = plugin.getConfig().getDouble("warden-wand.summon.radius", 8);
         double dmgPerSecond = plugin.getConfig().getDouble("warden-wand.summon.damage", 1);
+        int count = plugin.getConfig().getInt("warden-wand.summon.bats", 8);
         World world = player.getWorld();
-        Set<org.bukkit.entity.Bat> bats = new HashSet<>();
-        for (int i = 0; i < 6; i++) {
-            bats.add(world.spawn(player.getLocation().add(0, 1, 0), org.bukkit.entity.Bat.class));
+
+        LivingEntity focus = aimedEnemy(player, 24);
+        Location anchor = focus != null ? focus.getLocation() : player.getEyeLocation()
+                .add(player.getEyeLocation().getDirection().multiply(6));
+
+        List<Bat> bats = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            Bat bat = world.spawn(anchor.clone().add(rand(2), rand(2), rand(2)), Bat.class);
+            bat.setAwake(true);
+            bats.add(bat);
         }
-        new org.bukkit.scheduler.BukkitRunnable() {
+
+        new BukkitRunnable() {
             int ticks = 0;
 
             @Override
             public void run() {
+                LivingEntity victim = focus != null && focus.isValid() && !focus.isDead()
+                        ? focus : nearestEnemy(anchor, player, radius);
                 if (ticks >= seconds * 20 || !player.isOnline()) {
                     bats.forEach(b -> {
                         if (b.isValid()) {
@@ -126,14 +150,27 @@ public final class WardenWandListener implements Listener {
                     cancel();
                     return;
                 }
+                // Bats dive at the victim.
+                if (victim != null) {
+                    for (Bat bat : bats) {
+                        if (bat.isValid()) {
+                            Vector dir = victim.getEyeLocation().toVector().subtract(bat.getLocation().toVector());
+                            if (dir.lengthSquared() > 0.01) {
+                                bat.setVelocity(dir.normalize().multiply(0.55));
+                            }
+                        }
+                    }
+                }
+                // Apply the debuff + damage once a second.
                 if (ticks % 20 == 0) {
-                    for (Entity e : world.getNearbyEntities(player.getLocation(), radius, radius, radius)) {
+                    Location centre = victim != null ? victim.getLocation() : anchor;
+                    for (Entity e : world.getNearbyEntities(centre, radius, radius, radius)) {
                         if (e instanceof LivingEntity living && !e.equals(player)) {
                             living.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 60, 0));
                             living.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0));
                             living.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 80, 0));
                             living.setNoDamageTicks(0);
-                            living.damage(dmgPerSecond);
+                            living.damage(dmgPerSecond, player);
                         }
                     }
                 }
@@ -143,15 +180,24 @@ public final class WardenWandListener implements Listener {
         ToolDamage.damageMainHand(player);
     }
 
+    // --- range: a volley of spectral arrows --------------------------------
+
     private void range(Player player) {
         double cost = plugin.getConfig().getDouble("warden-wand.range.energy-cost", 15);
         long cd = plugin.getConfig().getLong("warden-wand.range.cooldown-ms", 800);
         if (!abilities.tryUse(player, "warden_range", cost, cd)) {
             return;
         }
-        SpectralArrow arrow = player.launchProjectile(SpectralArrow.class, player.getEyeLocation().getDirection());
-        arrow.setGlowingTicks(200);
-        arrow.getPersistentDataContainer().set(Keys.WARDEN_ARROW, PersistentDataType.BYTE, (byte) 1);
+        int arrows = plugin.getConfig().getInt("warden-wand.range.arrows", 3);
+        Vector base = player.getEyeLocation().getDirection();
+        for (int i = 0; i < arrows; i++) {
+            double spread = (i - (arrows - 1) / 2.0) * 8.0;
+            SpectralArrow arrow = player.launchProjectile(SpectralArrow.class, rotateYaw(base, spread).multiply(2.2));
+            arrow.setGlowingTicks(200);
+            arrow.setCritical(true);
+            arrow.getPersistentDataContainer().set(Keys.WARDEN_ARROW, PersistentDataType.BYTE, (byte) 1);
+        }
+        player.getWorld().playSound(player.getLocation(), "minecraft:entity.warden.sonic_charge", 1.0f, 1.4f);
         ToolDamage.damageMainHand(player);
     }
 
@@ -163,40 +209,56 @@ public final class WardenWandListener implements Listener {
         }
     }
 
+    // --- boss: the Warden Form ---------------------------------------------
+
     private void boss(Player player) {
         if (bossActive.contains(player.getUniqueId())) {
+            player.sendActionBar(Component.text("You are already in Warden Form.").color(NamedTextColor.DARK_AQUA));
             return;
         }
-        // Requires a (near) full charge: consume essentially all energy.
-        double required = abilities.maxEnergy() * 0.95;
+        double fraction = plugin.getConfig().getDouble("warden-wand.boss.charge-fraction", 0.5);
+        double required = abilities.maxEnergy() * Math.max(0.05, Math.min(1.0, fraction));
+        if (abilities.energy(player) < required) {
+            int pct = (int) (abilities.energy(player) / abilities.maxEnergy() * 100);
+            player.sendActionBar(Component.text("Warden Form charging: " + pct + "% (need "
+                    + (int) (fraction * 100) + "%)").color(NamedTextColor.RED));
+            return;
+        }
         if (!abilities.tryUse(player, "warden_boss", required,
                 plugin.getConfig().getLong("warden-wand.boss.cooldown-ms", 60000))) {
             return;
         }
+
         int seconds = plugin.getConfig().getInt("warden-wand.boss.seconds", 45);
         double bonusHealth = plugin.getConfig().getDouble("warden-wand.boss.bonus-health", 40);
+        double scaleBonus = plugin.getConfig().getDouble("warden-wand.boss.scale-bonus", 0.8);
 
         bossActive.add(player.getUniqueId());
         bossInventories.put(player.getUniqueId(), player.getInventory().getContents().clone());
 
-        AttributeInstance maxHealth = maxHealth(player);
+        applyModifier(player, "max_health", Keys.WARDEN_BOSS_HP, bonusHealth, bossHpModifier);
+        applyModifier(player, "scale", Keys.WARDEN_BOSS_SCALE, scaleBonus, bossScaleModifier);
+        AttributeInstance maxHealth = attributeInstance(player, "max_health");
         if (maxHealth != null) {
-            AttributeModifier mod = new AttributeModifier(Keys.WARDEN_BOSS_HP, bonusHealth,
-                    AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY);
-            maxHealth.addModifier(mod);
-            bossHpModifier.put(player.getUniqueId(), mod);
             player.setHealth(Math.min(maxHealth.getValue(), player.getHealth() + bonusHealth));
         }
-        player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, seconds * 20, 1));
+        int duration = seconds * 20;
+        player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, duration, 1));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration, 0));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, duration, 0));
         player.getWorld().playSound(player.getLocation(), "minecraft:entity.warden.emerge", 2.0f, 1.0f);
+        player.showTitle(Title.title(
+                Component.text("⚠ WARDEN FORM").color(NamedTextColor.DARK_AQUA),
+                Component.text("Unleash the deep dark").color(NamedTextColor.GRAY),
+                Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(2), Duration.ofMillis(500))));
 
         double auraRadius = plugin.getConfig().getDouble("warden-wand.boss.aura-radius", 12);
-        new org.bukkit.scheduler.BukkitRunnable() {
+        new BukkitRunnable() {
             int ticks = 0;
 
             @Override
             public void run() {
-                if (ticks >= seconds * 20 || !player.isOnline() || !bossActive.contains(player.getUniqueId())) {
+                if (ticks >= duration || !player.isOnline() || !bossActive.contains(player.getUniqueId())) {
                     revertBoss(player);
                     cancel();
                     return;
@@ -214,34 +276,33 @@ public final class WardenWandListener implements Listener {
         ToolDamage.damageMainHand(player);
     }
 
-    /** While boss-active, melee hits unleash a faked sonic boom. */
+    /** While in Warden Form, melee hits unleash a faked sonic boom. */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBossHit(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player player) || !bossActive.contains(player.getUniqueId())) {
-            return;
+        if (event.getDamager() instanceof Player player && bossActive.contains(player.getUniqueId())) {
+            sonicBoom(player);
         }
-        sonicBoom(player);
     }
 
     private void revertBoss(Player player) {
         if (!bossActive.remove(player.getUniqueId())) {
             return;
         }
-        AttributeInstance maxHealth = maxHealth(player);
-        AttributeModifier mod = bossHpModifier.remove(player.getUniqueId());
-        if (maxHealth != null && mod != null) {
-            maxHealth.removeModifier(mod);
-            if (player.getHealth() > maxHealth.getValue()) {
-                player.setHealth(maxHealth.getValue());
-            }
+        removeModifier(player, "max_health", bossHpModifier);
+        removeModifier(player, "scale", bossScaleModifier);
+        AttributeInstance maxHealth = attributeInstance(player, "max_health");
+        if (maxHealth != null && player.getHealth() > maxHealth.getValue()) {
+            player.setHealth(maxHealth.getValue());
         }
         player.removePotionEffect(PotionEffectType.STRENGTH);
+        player.removePotionEffect(PotionEffectType.SPEED);
+        player.removePotionEffect(PotionEffectType.GLOWING);
         ItemStack[] saved = bossInventories.remove(player.getUniqueId());
         if (saved != null) {
             player.getInventory().setContents(saved);
             player.updateInventory();
         }
-        player.sendActionBar(Component.text("The Warden's power fades."));
+        player.sendActionBar(Component.text("The Warden's power fades.").color(NamedTextColor.GRAY));
     }
 
     private void sonicBoom(Player shooter) {
@@ -250,21 +311,81 @@ public final class WardenWandListener implements Listener {
         Vector step = start.getDirection().normalize().multiply(0.75);
         Location point = start.clone();
         Set<Entity> hit = new HashSet<>();
+        double damage = plugin.getConfig().getDouble("warden-wand.boss.sonic-damage", 8);
         world.playSound(start, "minecraft:entity.warden.sonic_boom", 1.5f, 1.0f);
         for (double d = 0; d <= 18; d += 0.75) {
             point.add(step);
             world.spawnParticle(Particle.SONIC_BOOM, point, 1, 0, 0, 0, 0);
-            for (Entity e : world.getNearbyEntities(point, 1.4, 1.4, 1.4)) {
+            for (Entity e : world.getNearbyEntities(point, 1.5, 1.5, 1.5)) {
                 if (!e.equals(shooter) && e instanceof LivingEntity living && hit.add(e)) {
-                    living.damage(8, shooter);
+                    living.setNoDamageTicks(0);
+                    living.damage(damage, shooter);
                 }
             }
         }
     }
 
-    private AttributeInstance maxHealth(Player player) {
+    // --- helpers -----------------------------------------------------------
+
+    private void applyModifier(Player player, String attrKey, NamespacedKey modKey, double amount,
+                               Map<UUID, AttributeModifier> store) {
+        AttributeInstance inst = attributeInstance(player, attrKey);
+        if (inst == null) {
+            return;
+        }
+        AttributeModifier mod = new AttributeModifier(modKey, amount,
+                AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY);
+        inst.addModifier(mod);
+        store.put(player.getUniqueId(), mod);
+    }
+
+    private void removeModifier(Player player, String attrKey, Map<UUID, AttributeModifier> store) {
+        AttributeInstance inst = attributeInstance(player, attrKey);
+        AttributeModifier mod = store.remove(player.getUniqueId());
+        if (inst != null && mod != null) {
+            inst.removeModifier(mod);
+        }
+    }
+
+    private AttributeInstance attributeInstance(Player player, String key) {
         Attribute attr = RegistryAccess.registryAccess().getRegistry(RegistryKey.ATTRIBUTE)
-                .get(NamespacedKey.minecraft("max_health"));
+                .get(NamespacedKey.minecraft(key));
         return attr == null ? null : player.getAttribute(attr);
+    }
+
+    private LivingEntity aimedEnemy(Player player, int distance) {
+        RayTraceResult ray = player.rayTraceEntities(distance);
+        return ray != null && ray.getHitEntity() instanceof LivingEntity le && !le.equals(player) ? le : null;
+    }
+
+    private LivingEntity nearestEnemy(Location from, Player owner, double radius) {
+        LivingEntity best = null;
+        double bestSq = radius * radius;
+        for (Entity e : from.getWorld().getNearbyEntities(from, radius, radius, radius)) {
+            if (!(e instanceof LivingEntity living) || e.equals(owner)) {
+                continue;
+            }
+            if (!(living instanceof Monster) && !(living instanceof Player)) {
+                continue;
+            }
+            double sq = living.getLocation().distanceSquared(from);
+            if (sq < bestSq) {
+                bestSq = sq;
+                best = living;
+            }
+        }
+        return best;
+    }
+
+    private Vector rotateYaw(Vector vector, double degrees) {
+        double rad = Math.toRadians(degrees);
+        double cos = Math.cos(rad);
+        double sin = Math.sin(rad);
+        return new Vector(vector.getX() * cos - vector.getZ() * sin, vector.getY(),
+                vector.getX() * sin + vector.getZ() * cos);
+    }
+
+    private double rand(double range) {
+        return (Math.random() - 0.5) * 2 * range;
     }
 }
