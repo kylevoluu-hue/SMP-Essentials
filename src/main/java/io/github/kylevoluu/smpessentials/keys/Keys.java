@@ -24,6 +24,7 @@ public final class Keys {
     public static NamespacedKey RECIPE_BUCKET;
     public static NamespacedKey RECIPE_BLAZE_SWORD;
     public static NamespacedKey RECIPE_BLAZE_WAND;
+    public static NamespacedKey RECIPE_STORM_ROD;
 
     /** Marks a falling block spawned by the Amethyst Sword. */
     public static NamespacedKey DRIPSTONE;
@@ -57,6 +58,7 @@ public final class Keys {
         RECIPE_BUCKET = new NamespacedKey(plugin, "amethyst_bucket");
         RECIPE_BLAZE_SWORD = new NamespacedKey(plugin, "blaze_sword");
         RECIPE_BLAZE_WAND = new NamespacedKey(plugin, "blaze_wand");
+        RECIPE_STORM_ROD = new NamespacedKey(plugin, "storm_rod");
         DRIPSTONE = new NamespacedKey(plugin, "sword_dripstone");
         BLAZE_FIREBALL = new NamespacedKey(plugin, "blaze_fireball");
         WAND_MODE = new NamespacedKey(plugin, "wand_mode");

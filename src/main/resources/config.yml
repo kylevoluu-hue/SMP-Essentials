@@ -112,6 +112,18 @@ blaze-wand:
     speed: 1.6
     fire-ticks: 100
 
+# The Storm Rod (lightning-rod design): right-click to call down lightning.
+storm-rod:
+  enabled: true
+  # Minimum delay (milliseconds) between uses.
+  cooldown-ms: 1500
+  # How far the targeting ray reaches.
+  range: 40
+  # Bonus damage to living entities near the strike (vanilla lightning also hits).
+  extra-damage: 4.0
+  # Also smite whatever you hit in melee with this rod.
+  melee-strike: true
+
 combat:
   # Master switch for the anti-combat-log system.
   enabled: true

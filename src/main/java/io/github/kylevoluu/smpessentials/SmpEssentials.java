@@ -9,6 +9,7 @@ import io.github.kylevoluu.smpessentials.command.BedCommand;
 import io.github.kylevoluu.smpessentials.command.SmpCommand;
 import io.github.kylevoluu.smpessentials.keys.Keys;
 import io.github.kylevoluu.smpessentials.mining.AreaMiningListener;
+import io.github.kylevoluu.smpessentials.storm.StormRodListener;
 import io.github.kylevoluu.smpessentials.sword.AmethystSwordListener;
 import io.github.kylevoluu.smpessentials.tools.ToolRegistry;
 import io.github.kylevoluu.smpessentials.tools.ToolSoundListener;
@@ -45,6 +46,7 @@ public final class SmpEssentials extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new AmethystSwordListener(this), this);
         getServer().getPluginManager().registerEvents(new BlazeSwordListener(this), this);
         getServer().getPluginManager().registerEvents(new BlazeWandListener(this, messages), this);
+        getServer().getPluginManager().registerEvents(new StormRodListener(this), this);
         getServer().getPluginManager().registerEvents(new AmethystBucketListener(this, messages), this);
         getServer().getPluginManager().registerEvents(
                 new CombatLogListener(this, combatManager, messages), this);

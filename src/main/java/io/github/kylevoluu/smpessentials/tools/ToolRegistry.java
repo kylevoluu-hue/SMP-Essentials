@@ -87,6 +87,17 @@ public final class ToolRegistry {
         blazeWand.setIngredient('N', Material.NETHER_STAR);
         blazeWand.setIngredient('M', Material.MAGMA_BLOCK);
         Bukkit.addRecipe(blazeWand);
+
+        // Storm Rod:  N    (N = nether star, C = copper block, L = lightning rod)
+        //            CLC
+        //             C
+        ShapedRecipe stormRod = new ShapedRecipe(Keys.RECIPE_STORM_ROD,
+                AmethystToolFactory.create(AmethystToolType.STORM_ROD));
+        stormRod.shape(" N ", "CLC", " C ");
+        stormRod.setIngredient('N', Material.NETHER_STAR);
+        stormRod.setIngredient('C', Material.COPPER_BLOCK);
+        stormRod.setIngredient('L', Material.LIGHTNING_ROD);
+        Bukkit.addRecipe(stormRod);
     }
 
     /** Bind 'A' to an amethyst block and 'N' to a netherite block. */
@@ -104,6 +115,7 @@ public final class ToolRegistry {
         removeQuietly(Keys.RECIPE_BUCKET);
         removeQuietly(Keys.RECIPE_BLAZE_SWORD);
         removeQuietly(Keys.RECIPE_BLAZE_WAND);
+        removeQuietly(Keys.RECIPE_STORM_ROD);
     }
 
     private static void removeQuietly(NamespacedKey key) {
