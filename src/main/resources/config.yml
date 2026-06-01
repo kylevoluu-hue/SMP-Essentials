@@ -124,6 +124,21 @@ storm-rod:
   # Also smite whatever you hit in melee with this rod.
   melee-strike: true
 
+# Shared "ability energy" used by the ability items (Warden Crossbow, Storm
+# Scepter, Warden/Ender Wand, Troll Staff, Cloning Cane). Each ability use costs
+# energy; it regenerates over time and shows as a boss bar while you hold one.
+abilities:
+  max-energy: 100
+  regen-per-second: 10
+  bossbar: true
+
+# The Troll Staff: right-click to play a random eerie sound to nearby players.
+troll-staff:
+  enabled: true
+  energy-cost: 15
+  cooldown-ms: 1000
+  radius: 24
+
 combat:
   # Master switch for the anti-combat-log system.
   enabled: true

@@ -98,6 +98,17 @@ public final class ToolRegistry {
         stormRod.setIngredient('C', Material.COPPER_BLOCK);
         stormRod.setIngredient('L', Material.LIGHTNING_ROD);
         Bukkit.addRecipe(stormRod);
+
+        // Troll Staff:  N    (N = note block, S = stick, K = sculk sensor)
+        //               S
+        //               K
+        ShapedRecipe troll = new ShapedRecipe(Keys.RECIPE_TROLL_STAFF,
+                AmethystToolFactory.create(AmethystToolType.TROLL_STAFF));
+        troll.shape(" N ", " S ", " K ");
+        troll.setIngredient('N', Material.NOTE_BLOCK);
+        troll.setIngredient('S', Material.STICK);
+        troll.setIngredient('K', Material.SCULK_SENSOR);
+        Bukkit.addRecipe(troll);
     }
 
     /** Bind 'A' to an amethyst block and 'N' to a netherite block. */
@@ -116,6 +127,7 @@ public final class ToolRegistry {
         removeQuietly(Keys.RECIPE_BLAZE_SWORD);
         removeQuietly(Keys.RECIPE_BLAZE_WAND);
         removeQuietly(Keys.RECIPE_STORM_ROD);
+        removeQuietly(Keys.RECIPE_TROLL_STAFF);
     }
 
     private static void removeQuietly(NamespacedKey key) {

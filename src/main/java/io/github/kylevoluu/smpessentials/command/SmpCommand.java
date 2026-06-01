@@ -171,7 +171,8 @@ public final class SmpCommand implements CommandExecutor, TabCompleter {
                 }
             }
         } else if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
-            for (String tool : List.of("pickaxe", "axe", "shovel", "sword", "bucket", "blaze", "wand")) {
+            for (String tool : List.of("pickaxe", "axe", "shovel", "sword", "bucket", "blaze", "wand",
+                    "storm", "crossbow", "scepter", "warden", "ender", "troll", "cane")) {
                 if (tool.startsWith(args[1].toLowerCase(Locale.ROOT))) {
                     out.add(tool);
                 }

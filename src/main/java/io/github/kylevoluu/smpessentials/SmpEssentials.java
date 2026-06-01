@@ -1,8 +1,11 @@
 package io.github.kylevoluu.smpessentials;
 
+import io.github.kylevoluu.smpessentials.ability.AbilityManager;
 import io.github.kylevoluu.smpessentials.blaze.BlazeSwordListener;
 import io.github.kylevoluu.smpessentials.blaze.BlazeWandListener;
 import io.github.kylevoluu.smpessentials.bucket.AmethystBucketListener;
+import io.github.kylevoluu.smpessentials.data.MobKills;
+import io.github.kylevoluu.smpessentials.troll.TrollStaffListener;
 import io.github.kylevoluu.smpessentials.combatlog.CombatLogListener;
 import io.github.kylevoluu.smpessentials.combatlog.CombatTagManager;
 import io.github.kylevoluu.smpessentials.command.BedCommand;
@@ -29,6 +32,7 @@ import java.util.Set;
 public final class SmpEssentials extends JavaPlugin {
 
     private CombatTagManager combatManager;
+    private AbilityManager abilityManager;
 
     @Override
     public void onEnable() {
@@ -38,6 +42,7 @@ public final class SmpEssentials extends JavaPlugin {
 
         Messages messages = new Messages(this);
         this.combatManager = new CombatTagManager(this, messages);
+        this.abilityManager = new AbilityManager(this);
 
         // Listeners
         getServer().getPluginManager().registerEvents(new AreaMiningListener(this), this);
@@ -50,6 +55,10 @@ public final class SmpEssentials extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new AmethystBucketListener(this, messages), this);
         getServer().getPluginManager().registerEvents(
                 new CombatLogListener(this, combatManager, messages), this);
+
+        // Ability items (shared energy/cooldown system)
+        getServer().getPluginManager().registerEvents(new MobKills(), this);
+        getServer().getPluginManager().registerEvents(new TrollStaffListener(this, abilityManager), this);
 
         // Commands
         PluginCommand command = getCommand("smpe");
@@ -65,12 +74,16 @@ public final class SmpEssentials extends JavaPlugin {
 
         // Recipes + combat ticker
         refreshRuntime();
+        abilityManager.start();
 
         getLogger().info("SMP Essentials enabled (Amethyst tools + anti-combat-log).");
     }
 
     @Override
     public void onDisable() {
+        if (abilityManager != null) {
+            abilityManager.stop();
+        }
         if (combatManager != null) {
             combatManager.stop();
         }

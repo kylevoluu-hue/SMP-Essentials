@@ -15,6 +15,7 @@ import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
@@ -59,6 +60,17 @@ public final class AmethystToolFactory {
             if (meta instanceof Damageable damageable) {
                 damageable.setMaxDamage((int) Material.NETHERITE_SWORD.getMaxDurability());
             }
+        }
+
+        // Custom model data (resource-pack texture) for the ability items.
+        if (type.customModelData() > 0) {
+            CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
+            cmd.setFloats(List.of((float) type.customModelData()));
+            meta.setCustomModelDataComponent(cmd);
+        }
+        // Overridden durability (e.g. 1.5x netherite) on a damageable base.
+        if (type.maxDurability() > 0 && meta instanceof Damageable damageable) {
+            damageable.setMaxDamage(type.maxDurability());
         }
 
         item.setItemMeta(meta);

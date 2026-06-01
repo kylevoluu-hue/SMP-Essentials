@@ -57,18 +57,75 @@ public enum AmethystToolType {
             new String[]{
                     "&eRight-click to call down lightning.",
                     "&eSmites whatever you strike in melee."
-            });
+            }),
+
+    // --- Ability items (custom model data + 1.5x netherite durability + Mending) ---
+
+    WARDEN_CROSSBOW("warden_crossbow", Material.CROSSBOW, "Warden Crossbow",
+            new String[]{
+                    "&3Fires a &bsonic boom&3.",
+                    "&8With Multishot: three booms."
+            }, 1, 3047),
+
+    STORM_SCEPTER("storm_scepter", Material.CARROT_ON_A_STICK, "Storm Scepter",
+            new String[]{
+                    "&fModes: lightning bow, sunken, summon.",
+                    "&7Sneak + right-click to switch mode."
+            }, 2, 3047),
+
+    WARDEN_WAND("warden_wand", Material.CARROT_ON_A_STICK, "Warden Wand",
+            new String[]{
+                    "&3Modes: summon, range, boss.",
+                    "&7Sneak + right-click to switch mode."
+            }, 3, 3047),
+
+    ENDER_WAND("ender_wand", Material.CARROT_ON_A_STICK, "Ender Wand",
+            new String[]{
+                    "&5Modes: pearls, ranged, summon.",
+                    "&7Sneak + right-click to switch mode."
+            }, 4, 3047),
+
+    TROLL_STAFF("troll_staff", Material.CARROT_ON_A_STICK, "Troll Staff",
+            new String[]{
+                    "&dRight-click for an eerie scare.",
+                    "&7Plays random spooky sounds nearby."
+            }, 5, 3047),
+
+    CLONING_CANE("cloning_cane", Material.CARROT_ON_A_STICK, "Cloning Cane",
+            new String[]{
+                    "&bModes: confusion, explode.",
+                    "&7Charge grows with mob kills."
+            }, 6, 3047);
 
     private final String markerValue;
     private final Material baseMaterial;
     private final String displayName;
     private final String[] lore;
+    private final int customModelData;
+    private final int maxDurability;
 
     AmethystToolType(String markerValue, Material baseMaterial, String displayName, String[] lore) {
+        this(markerValue, baseMaterial, displayName, lore, 0, 0);
+    }
+
+    AmethystToolType(String markerValue, Material baseMaterial, String displayName, String[] lore,
+                     int customModelData, int maxDurability) {
         this.markerValue = markerValue;
         this.baseMaterial = baseMaterial;
         this.displayName = displayName;
         this.lore = lore;
+        this.customModelData = customModelData;
+        this.maxDurability = maxDurability;
+    }
+
+    /** Custom model data for the resource pack (0 = none). */
+    public int customModelData() {
+        return customModelData;
+    }
+
+    /** Overridden max durability (0 = keep the material default). */
+    public int maxDurability() {
+        return maxDurability;
     }
 
     public String markerValue() {
@@ -101,6 +158,12 @@ public enum AmethystToolType {
             case "blaze", "blazesword", "blaze_sword" -> BLAZE_SWORD;
             case "wand", "blazewand", "blaze_wand" -> BLAZE_WAND;
             case "storm", "stormrod", "storm_rod", "rod" -> STORM_ROD;
+            case "wardencrossbow", "warden_crossbow", "crossbow" -> WARDEN_CROSSBOW;
+            case "stormscepter", "storm_scepter", "scepter" -> STORM_SCEPTER;
+            case "wardenwand", "warden_wand", "warden" -> WARDEN_WAND;
+            case "enderwand", "ender_wand", "ender" -> ENDER_WAND;
+            case "trollstaff", "troll_staff", "troll" -> TROLL_STAFF;
+            case "cloningcane", "cloning_cane", "cloning", "cane" -> CLONING_CANE;
             default -> null;
         };
     }
