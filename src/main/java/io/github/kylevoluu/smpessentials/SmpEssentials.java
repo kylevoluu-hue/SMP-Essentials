@@ -1,5 +1,6 @@
 package io.github.kylevoluu.smpessentials;
 
+import io.github.kylevoluu.smpessentials.blaze.BlazeSwordListener;
 import io.github.kylevoluu.smpessentials.bucket.AmethystBucketListener;
 import io.github.kylevoluu.smpessentials.combatlog.CombatLogListener;
 import io.github.kylevoluu.smpessentials.combatlog.CombatTagManager;
@@ -41,6 +42,7 @@ public final class SmpEssentials extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new TreeFellerListener(this), this);
         getServer().getPluginManager().registerEvents(new ToolSoundListener(this), this);
         getServer().getPluginManager().registerEvents(new AmethystSwordListener(this), this);
+        getServer().getPluginManager().registerEvents(new BlazeSwordListener(this), this);
         getServer().getPluginManager().registerEvents(new AmethystBucketListener(this, messages), this);
         getServer().getPluginManager().registerEvents(
                 new CombatLogListener(this, combatManager, messages), this);

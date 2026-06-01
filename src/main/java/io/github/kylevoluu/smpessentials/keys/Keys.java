@@ -22,9 +22,13 @@ public final class Keys {
     public static NamespacedKey RECIPE_SHOVEL;
     public static NamespacedKey RECIPE_SWORD;
     public static NamespacedKey RECIPE_BUCKET;
+    public static NamespacedKey RECIPE_BLAZE_SWORD;
 
     /** Marks a falling block spawned by the Amethyst Sword. */
     public static NamespacedKey DRIPSTONE;
+
+    /** Marks a fireball shot by the Blaze Sword. */
+    public static NamespacedKey BLAZE_FIREBALL;
 
     /** Attribute-modifier keys for the Amethyst Sword. */
     public static NamespacedKey SWORD_ATTACK_DAMAGE;
@@ -45,7 +49,9 @@ public final class Keys {
         RECIPE_SHOVEL = new NamespacedKey(plugin, "amethyst_shovel");
         RECIPE_SWORD = new NamespacedKey(plugin, "amethyst_sword");
         RECIPE_BUCKET = new NamespacedKey(plugin, "amethyst_bucket");
+        RECIPE_BLAZE_SWORD = new NamespacedKey(plugin, "blaze_sword");
         DRIPSTONE = new NamespacedKey(plugin, "sword_dripstone");
+        BLAZE_FIREBALL = new NamespacedKey(plugin, "blaze_fireball");
         SWORD_ATTACK_DAMAGE = new NamespacedKey(plugin, "sword_attack_damage");
         SWORD_ATTACK_SPEED = new NamespacedKey(plugin, "sword_attack_speed");
         BUCKET_WATER = new NamespacedKey(plugin, "bucket_water");

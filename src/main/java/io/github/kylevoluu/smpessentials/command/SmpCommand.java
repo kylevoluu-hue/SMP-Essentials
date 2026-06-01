@@ -84,13 +84,13 @@ public final class SmpCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length < 2) {
             sender.sendMessage(messages.prefixed("combat-status-self-none"));
-            sender.sendMessage(net.kyori.adventure.text.Component.text("Usage: /smpe give <pickaxe|axe|shovel|sword|bucket> [player]"));
+            sender.sendMessage(net.kyori.adventure.text.Component.text("Usage: /smpe give <pickaxe|axe|shovel|sword|bucket|blaze> [player]"));
             return;
         }
         AmethystToolType type = AmethystToolType.fromArgument(args[1]);
         if (type == null) {
             sender.sendMessage(net.kyori.adventure.text.Component.text(
-                    "Unknown tool. Use: pickaxe, axe, shovel, sword or bucket."));
+                    "Unknown tool. Use: pickaxe, axe, shovel, sword, bucket or blaze."));
             return;
         }
 
@@ -155,7 +155,7 @@ public final class SmpCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendUsage(CommandSender sender, String label) {
-        sender.sendMessage(net.kyori.adventure.text.Component.text("/" + label + " give <pickaxe|axe|shovel|sword|bucket> [player]"));
+        sender.sendMessage(net.kyori.adventure.text.Component.text("/" + label + " give <pickaxe|axe|shovel|sword|bucket|blaze> [player]"));
         sender.sendMessage(net.kyori.adventure.text.Component.text("/" + label + " combat [player]"));
         sender.sendMessage(net.kyori.adventure.text.Component.text("/" + label + " preset [list|<name>]"));
         sender.sendMessage(net.kyori.adventure.text.Component.text("/" + label + " reload"));
@@ -171,7 +171,7 @@ public final class SmpCommand implements CommandExecutor, TabCompleter {
                 }
             }
         } else if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
-            for (String tool : List.of("pickaxe", "axe", "shovel", "sword", "bucket")) {
+            for (String tool : List.of("pickaxe", "axe", "shovel", "sword", "bucket", "blaze")) {
                 if (tool.startsWith(args[1].toLowerCase(Locale.ROOT))) {
                     out.add(tool);
                 }

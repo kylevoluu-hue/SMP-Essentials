@@ -50,7 +50,9 @@ public final class AmethystToolFactory {
         meta.getPersistentDataContainer().set(Keys.TOOL, PersistentDataType.STRING, type.markerValue());
 
         if (type == AmethystToolType.SWORD) {
-            applySwordAttributes(meta);
+            applySwordAttributes(meta, 10.0);
+        } else if (type == AmethystToolType.BLAZE_SWORD) {
+            applySwordAttributes(meta, 12.0);
         }
 
         item.setItemMeta(meta);
@@ -62,16 +64,17 @@ public final class AmethystToolFactory {
     }
 
     /**
-     * Give the sword a base attack damage of 10 (player base 1 + 9) and a normal
-     * sword swing speed. Setting modifiers via the API replaces the material's
-     * default ones, so we set both. Crits and Sharpness still scale on top.
+     * Give a custom sword the requested base attack damage (player base is 1, so
+     * the modifier is base - 1) and a normal sword swing speed. Setting modifiers
+     * via the API replaces the material's defaults, so we set both. Crits and
+     * Sharpness still scale on top.
      */
-    private static void applySwordAttributes(ItemMeta meta) {
+    private static void applySwordAttributes(ItemMeta meta, double baseDamage) {
         Attribute attackDamage = attribute("attack_damage");
         Attribute attackSpeed = attribute("attack_speed");
         if (attackDamage != null) {
             meta.addAttributeModifier(attackDamage, new AttributeModifier(
-                    Keys.SWORD_ATTACK_DAMAGE, 9.0,
+                    Keys.SWORD_ATTACK_DAMAGE, baseDamage - 1.0,
                     AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
         }
         if (attackSpeed != null) {

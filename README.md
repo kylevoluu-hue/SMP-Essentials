@@ -47,6 +47,12 @@ storage. **Sneak + right-click** switches which stored fluid you pour, and
 right-clicking a block places a source of it. (A configurable per-drain cap keeps
 it from swallowing an entire ocean.)
 
+### 🔥 Blaze Sword — fire & fireballs
+A **gold-sword** design with base attack damage **12**. Every hit **sets the
+target on fire** and **launches a fireball** at it that deals **8 extra damage**
+(both amounts configurable). Crafted from blaze rods, a magma block and nether
+stars — not amethyst (see [Recipes](#recipes)).
+
 ### 🔮 Amethyst tools are real tools
 - **Netherite design** — they use the netherite item models (and netherite
   durability / fire-resistance), just renamed *Amethyst …* with a glint.
@@ -251,6 +257,16 @@ Amethyst Pickaxe     Amethyst Axe      Amethyst Shovel   Amethyst Sword    Ameth
    . S .                N S                 N                N                 . A .
    . S .                . S                 N                N
 ```
+`N` = netherite block, `A` = amethyst block, `S` = stick.
+
+The **Blaze Sword** is the exception — it's forged from Nether materials
+(`R` = blaze rod, `M` = magma block, `*` = nether star):
+```
+Blaze Sword
+   * . *
+   . M .
+   . R .
+```
 
 Crafting can be disabled (`amethyst-tools.recipes-enabled: false`) if you want the
 tools to be admin-only (via `/smpe give`).
@@ -261,7 +277,7 @@ tools to be admin-only (via `/smpe give`).
 
 | Command | Description | Permission |
 |---|---|---|
-| `/smpe give <pickaxe\|axe\|shovel\|sword\|bucket> [player]` | Give an Amethyst tool | `smpessentials.give` |
+| `/smpe give <pickaxe\|axe\|shovel\|sword\|bucket\|blaze> [player]` | Give a custom tool | `smpessentials.give` |
 | `/smpe combat [player]` | Show how long you (or another player) are in combat | `smpessentials.combat.check` |
 | `/smpe preset [list\|<name>]` | List the available presets, or apply one live | `smpessentials.reload` |
 | `/smpe reload` | Reload `config.yml` | `smpessentials.reload` |

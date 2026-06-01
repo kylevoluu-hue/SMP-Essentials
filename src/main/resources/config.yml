@@ -3,7 +3,7 @@
 #  Every option is documented. After editing, run /smpe reload (or restart).
 # ----------------------------------------------------------------------------
 #  COMMANDS (alias: /smpessentials)
-#    /smpe give <pickaxe|axe|shovel|sword|bucket> [player]  Give an Amethyst tool   (smpessentials.give)
+#    /smpe give <pickaxe|axe|shovel|sword|bucket|blaze> [player]  Give an Amethyst tool   (smpessentials.give)
 #    /smpe combat [player]              Show combat status      (smpessentials.combat.check)
 #    /smpe preset [list|<name>]         List / apply a preset   (smpessentials.reload)
 #    /smpe reload                       Reload this file        (smpessentials.reload)
@@ -79,6 +79,17 @@ amethyst-tools:
     # connected pool (prevents draining an entire ocean and lagging the server).
     # Stored amounts themselves are unlimited.
     max-drain-blocks: 1024
+
+# The Blaze Sword (gold-sword design; base attack damage 12 is set on the item).
+blaze-sword:
+  enabled: true
+  # How long (in ticks, 20 = 1s) the target burns when hit. 0 = no fire.
+  fire-ticks: 100
+  # Extra damage dealt by the fireball that is shot on each hit.
+  fireball-damage: 8.0
+  # Whether the shot fireball sets blocks alight where it lands (off by default to
+  # avoid accidental fires; the sword/fireball still ignite entities directly).
+  incendiary: false
 
 combat:
   # Master switch for the anti-combat-log system.

@@ -11,7 +11,7 @@ commands:
   smpe:
     description: SMP Essentials admin and info command.
     usage: |-
-      /smpe give <pickaxe|axe|shovel|sword|bucket> [player] - Give an Amethyst tool
+      /smpe give <pickaxe|axe|shovel|sword|bucket|blaze> [player] - Give an Amethyst tool
       /smpe combat [player] - Check combat status
       /smpe preset [list|<name>] - List or apply a config preset
       /smpe reload - Reload the configuration
