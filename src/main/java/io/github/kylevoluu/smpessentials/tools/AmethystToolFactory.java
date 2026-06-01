@@ -7,11 +7,13 @@ import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -53,6 +55,10 @@ public final class AmethystToolFactory {
             applySwordAttributes(meta, 10.0);
         } else if (type == AmethystToolType.BLAZE_SWORD) {
             applySwordAttributes(meta, 12.0);
+            // Gold sword base only has 32 durability; give it a netherite lifespan.
+            if (meta instanceof Damageable damageable) {
+                damageable.setMaxDamage((int) Material.NETHERITE_SWORD.getMaxDurability());
+            }
         }
 
         item.setItemMeta(meta);
