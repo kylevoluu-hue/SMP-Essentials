@@ -17,6 +17,7 @@ import io.github.kylevoluu.smpessentials.command.BedCommand;
 import io.github.kylevoluu.smpessentials.command.SmpCommand;
 import io.github.kylevoluu.smpessentials.keys.Keys;
 import io.github.kylevoluu.smpessentials.mining.AreaMiningListener;
+import io.github.kylevoluu.smpessentials.pack.ResourcePackListener;
 import io.github.kylevoluu.smpessentials.storm.StormRodListener;
 import io.github.kylevoluu.smpessentials.sword.AmethystSwordListener;
 import io.github.kylevoluu.smpessentials.tools.ToolRegistry;
@@ -69,6 +70,7 @@ public final class SmpEssentials extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WardenWandListener(this, abilityManager), this);
         getServer().getPluginManager().registerEvents(new EnderWandListener(this, abilityManager), this);
         getServer().getPluginManager().registerEvents(new CloningCaneListener(this, abilityManager), this);
+        getServer().getPluginManager().registerEvents(new ResourcePackListener(this), this);
 
         // Commands
         PluginCommand command = getCommand("smpe");

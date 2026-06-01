@@ -216,6 +216,18 @@ cloning-cane:
     power: 2.0
     max-ticks: 120
 
+# Optionally have the plugin send the resource pack to players on join (instead of
+# editing server.properties). Sending on join avoids the server.properties
+# "error during configuration" pitfall. The client still downloads it from 'url'.
+resource-pack:
+  push-on-join: false
+  url: "https://github.com/kylevoluu-hue/SMP-Essentials/releases/download/latest/SMPEssentials-ResourcePack.zip"
+  # Optional 40-char SHA-1 of the zip (from the release notes). Needed for the
+  # 'required' kick-on-decline behaviour; leave blank to just prompt.
+  sha1: ""
+  # If true (and sha1 is set), players who decline are kicked.
+  required: false
+
 combat:
   # Master switch for the anti-combat-log system.
   enabled: true
