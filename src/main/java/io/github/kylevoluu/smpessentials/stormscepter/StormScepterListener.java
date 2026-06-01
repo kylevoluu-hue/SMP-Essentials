@@ -138,8 +138,6 @@ public final class StormScepterListener implements Listener {
         LivingEntity target = ray != null && ray.getHitEntity() instanceof LivingEntity le ? le : null;
 
         Vex vex = player.getWorld().spawn(player.getEyeLocation(), Vex.class, v -> {
-            v.setLimitedLife(seconds * 20);
-            v.setLimited(true);
             if (target != null) {
                 v.setTarget(target);
             }
