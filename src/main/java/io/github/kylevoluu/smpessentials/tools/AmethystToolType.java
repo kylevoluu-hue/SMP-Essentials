@@ -45,6 +45,12 @@ public enum AmethystToolType {
             new String[]{
                     "&6Base damage &c12&6.",
                     "&6Ignites and fireballs your target."
+            }),
+
+    BLAZE_WAND("blaze_wand", Material.BLAZE_ROD, "Blaze Wand",
+            new String[]{
+                    "&6A multi-mode blaze wand.",
+                    "&7Sneak + right-click to switch mode."
             });
 
     private final String markerValue;
@@ -87,6 +93,7 @@ public enum AmethystToolType {
             case "sword" -> SWORD;
             case "bucket" -> BUCKET;
             case "blaze", "blazesword", "blaze_sword" -> BLAZE_SWORD;
+            case "wand", "blazewand", "blaze_wand" -> BLAZE_WAND;
             default -> null;
         };
     }

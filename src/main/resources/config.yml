@@ -3,7 +3,7 @@
 #  Every option is documented. After editing, run /smpe reload (or restart).
 # ----------------------------------------------------------------------------
 #  COMMANDS (alias: /smpessentials)
-#    /smpe give <pickaxe|axe|shovel|sword|bucket|blaze> [player]  Give an Amethyst tool   (smpessentials.give)
+#    /smpe give <pickaxe|axe|shovel|sword|bucket|blaze|wand> [player]  Give an Amethyst tool   (smpessentials.give)
 #    /smpe combat [player]              Show combat status      (smpessentials.combat.check)
 #    /smpe preset [list|<name>]         List / apply a preset   (smpessentials.reload)
 #    /smpe reload                       Reload this file        (smpessentials.reload)
@@ -90,6 +90,27 @@ blaze-sword:
   # Whether the shot fireball sets blocks alight where it lands (off by default to
   # avoid accidental fires; the sword/fireball still ignite entities directly).
   incendiary: false
+
+# The Blaze Wand (blaze-rod design). Right-click to use the current mode, sneak +
+# right-click to cycle modes (summon -> range -> bow).
+blaze-wand:
+  enabled: true
+  # Minimum delay (milliseconds) between wand uses, to prevent spam.
+  cooldown-ms: 750
+  summon:
+    # How long the summoned blaze lives before it despawns.
+    seconds: 6
+  range:
+    # How many fireballs are fired per use, and the gap (ticks) between them.
+    fireballs: 5
+    interval-ticks: 5
+    # Damage per fireball hit (6.0 = 3 hearts).
+    fireball-damage: 6.0
+  bow:
+    # Fuse length, launch speed, and how long things it hits burn.
+    fuse-ticks: 40
+    speed: 1.6
+    fire-ticks: 100
 
 combat:
   # Master switch for the anti-combat-log system.
@@ -204,6 +225,7 @@ messages:
   bucket-collected: "&aDrained &e{amount}&a {fluid} into your Amethyst Bucket."
   bucket-placed: "&aPoured {fluid}."
   bucket-empty: "&cYour Amethyst Bucket has no {fluid} stored."
+  wand-mode-switched: "&6Wand mode: &e{mode}&6."
 
 # ============================================================================
 #  PRESETS

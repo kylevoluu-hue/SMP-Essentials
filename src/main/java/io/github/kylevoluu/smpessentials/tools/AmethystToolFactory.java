@@ -65,6 +65,8 @@ public final class AmethystToolFactory {
 
         if (type == AmethystToolType.BUCKET) {
             AmethystBucket.initialize(item);
+        } else if (type == AmethystToolType.BLAZE_WAND) {
+            BlazeWand.initialize(item);
         }
         return item;
     }

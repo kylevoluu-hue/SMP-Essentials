@@ -1,8 +1,8 @@
 # SMP Essentials
 
-A lightweight quality-of-life plugin for survival multiplayer (SMP) servers running
-**Paper / Bukkit 26.1.2**. It adds two custom **Amethyst tools** and a strict
-**anti-combat-log** system so PvP fights actually have stakes.
+A quality-of-life plugin for survival multiplayer (SMP) servers running
+**Paper / Bukkit 26.1.2**. It adds a suite of custom **Amethyst & Blaze tools**, a
+`/bed` command, and a strict **anti-combat-log** system so PvP fights have stakes.
 
 | | |
 |---|---|
@@ -52,6 +52,16 @@ A **gold-sword** design with base attack damage **12**. Every hit **sets the
 target on fire** and **launches a fireball** at it that deals **8 extra damage**
 (both amounts configurable). Crafted from blaze rods, a magma block and nether
 stars — not amethyst (see [Recipes](#recipes)).
+
+### 🪄 Blaze Wand — multi-mode
+A blaze-rod wand with three modes — **sneak + right-click** to cycle, right-click
+to use:
+- **Summon** — spawns a blaze that fights for ~6 seconds, then despawns.
+- **Range** — fires a timed volley of 5 fireballs (3 hearts each).
+- **Bow** — lobs primed TNT that explodes and sets the area on fire.
+
+All amounts/timers are configurable under `blaze-wand:`. Crafted from blaze rods,
+a magma block and a nether star.
 
 ### 🔮 Amethyst tools are real tools
 - **Netherite design** — they use the netherite item models (and netherite
@@ -259,13 +269,13 @@ Amethyst Pickaxe     Amethyst Axe      Amethyst Shovel   Amethyst Sword    Ameth
 ```
 `N` = netherite block, `A` = amethyst block, `S` = stick.
 
-The **Blaze Sword** is the exception — it's forged from Nether materials
+The **Blaze tools** are the exception — forged from Nether materials
 (`R` = blaze rod, `M` = magma block, `*` = nether star):
 ```
-Blaze Sword
-   * . *
-   . M .
-   . R .
+Blaze Sword     Blaze Wand
+   * . *          R * R
+   . M .          R M R
+   . R .          . R .
 ```
 
 Crafting can be disabled (`amethyst-tools.recipes-enabled: false`) if you want the
@@ -277,7 +287,7 @@ tools to be admin-only (via `/smpe give`).
 
 | Command | Description | Permission |
 |---|---|---|
-| `/smpe give <pickaxe\|axe\|shovel\|sword\|bucket\|blaze> [player]` | Give a custom tool | `smpessentials.give` |
+| `/smpe give <pickaxe\|axe\|shovel\|sword\|bucket\|blaze\|wand> [player]` | Give a custom tool | `smpessentials.give` |
 | `/smpe combat [player]` | Show how long you (or another player) are in combat | `smpessentials.combat.check` |
 | `/smpe preset [list\|<name>]` | List the available presets, or apply one live | `smpessentials.reload` |
 | `/smpe reload` | Reload `config.yml` | `smpessentials.reload` |

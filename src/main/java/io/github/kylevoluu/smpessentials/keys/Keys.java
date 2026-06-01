@@ -23,12 +23,18 @@ public final class Keys {
     public static NamespacedKey RECIPE_SWORD;
     public static NamespacedKey RECIPE_BUCKET;
     public static NamespacedKey RECIPE_BLAZE_SWORD;
+    public static NamespacedKey RECIPE_BLAZE_WAND;
 
     /** Marks a falling block spawned by the Amethyst Sword. */
     public static NamespacedKey DRIPSTONE;
 
     /** Marks a fireball shot by the Blaze Sword. */
     public static NamespacedKey BLAZE_FIREBALL;
+
+    /** Blaze Wand: selected mode, and markers for its fireballs and TNT. */
+    public static NamespacedKey WAND_MODE;
+    public static NamespacedKey WAND_FIREBALL;
+    public static NamespacedKey WAND_TNT;
 
     /** Attribute-modifier keys for the Amethyst Sword. */
     public static NamespacedKey SWORD_ATTACK_DAMAGE;
@@ -50,8 +56,12 @@ public final class Keys {
         RECIPE_SWORD = new NamespacedKey(plugin, "amethyst_sword");
         RECIPE_BUCKET = new NamespacedKey(plugin, "amethyst_bucket");
         RECIPE_BLAZE_SWORD = new NamespacedKey(plugin, "blaze_sword");
+        RECIPE_BLAZE_WAND = new NamespacedKey(plugin, "blaze_wand");
         DRIPSTONE = new NamespacedKey(plugin, "sword_dripstone");
         BLAZE_FIREBALL = new NamespacedKey(plugin, "blaze_fireball");
+        WAND_MODE = new NamespacedKey(plugin, "wand_mode");
+        WAND_FIREBALL = new NamespacedKey(plugin, "wand_fireball");
+        WAND_TNT = new NamespacedKey(plugin, "wand_tnt");
         SWORD_ATTACK_DAMAGE = new NamespacedKey(plugin, "sword_attack_damage");
         SWORD_ATTACK_SPEED = new NamespacedKey(plugin, "sword_attack_speed");
         BUCKET_WATER = new NamespacedKey(plugin, "bucket_water");

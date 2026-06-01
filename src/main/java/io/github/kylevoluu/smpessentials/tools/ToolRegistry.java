@@ -76,6 +76,17 @@ public final class ToolRegistry {
         blazeSword.setIngredient('M', Material.MAGMA_BLOCK);
         blazeSword.setIngredient('B', Material.BLAZE_ROD);
         Bukkit.addRecipe(blazeSword);
+
+        // Blaze Wand:  R N R   (R = blaze rod, N = nether star, M = magma block)
+        //              R M R
+        //               R
+        ShapedRecipe blazeWand = new ShapedRecipe(Keys.RECIPE_BLAZE_WAND,
+                AmethystToolFactory.create(AmethystToolType.BLAZE_WAND));
+        blazeWand.shape("RNR", "RMR", " R ");
+        blazeWand.setIngredient('R', Material.BLAZE_ROD);
+        blazeWand.setIngredient('N', Material.NETHER_STAR);
+        blazeWand.setIngredient('M', Material.MAGMA_BLOCK);
+        Bukkit.addRecipe(blazeWand);
     }
 
     /** Bind 'A' to an amethyst block and 'N' to a netherite block. */
@@ -92,6 +103,7 @@ public final class ToolRegistry {
         removeQuietly(Keys.RECIPE_SWORD);
         removeQuietly(Keys.RECIPE_BUCKET);
         removeQuietly(Keys.RECIPE_BLAZE_SWORD);
+        removeQuietly(Keys.RECIPE_BLAZE_WAND);
     }
 
     private static void removeQuietly(NamespacedKey key) {
