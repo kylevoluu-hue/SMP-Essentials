@@ -50,6 +50,7 @@ public final class WardenWandListener implements Listener {
     private final Plugin plugin;
     private final AbilityManager abilities;
     private final Map<UUID, ItemStack[]> bossInventories = new HashMap<>();
+    private final Map<UUID, AttributeModifier> bossHpModifier = new HashMap<>();
     private final Set<UUID> bossActive = new HashSet<>();
 
     public WardenWandListener(Plugin plugin, AbilityManager abilities) {
@@ -180,8 +181,10 @@ public final class WardenWandListener implements Listener {
 
         AttributeInstance maxHealth = maxHealth(player);
         if (maxHealth != null) {
-            maxHealth.addModifier(new AttributeModifier(Keys.WARDEN_BOSS_HP, bonusHealth,
-                    AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY));
+            AttributeModifier mod = new AttributeModifier(Keys.WARDEN_BOSS_HP, bonusHealth,
+                    AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY);
+            maxHealth.addModifier(mod);
+            bossHpModifier.put(player.getUniqueId(), mod);
             player.setHealth(Math.min(maxHealth.getValue(), player.getHealth() + bonusHealth));
         }
         player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, seconds * 20, 1));
@@ -225,10 +228,9 @@ public final class WardenWandListener implements Listener {
             return;
         }
         AttributeInstance maxHealth = maxHealth(player);
-        if (maxHealth != null) {
-            maxHealth.getModifiers().stream()
-                    .filter(m -> m.getKey().equals(Keys.WARDEN_BOSS_HP))
-                    .forEach(maxHealth::removeModifier);
+        AttributeModifier mod = bossHpModifier.remove(player.getUniqueId());
+        if (maxHealth != null && mod != null) {
+            maxHealth.removeModifier(mod);
             if (player.getHealth() > maxHealth.getValue()) {
                 player.setHealth(maxHealth.getValue());
             }
