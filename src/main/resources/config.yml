@@ -132,12 +132,22 @@ abilities:
   regen-per-second: 10
   bossbar: true
 
-# The Troll Staff: right-click to play a random eerie sound to nearby players.
+# The Troll Staff: right-click = random eerie sound; sneak + right-click = spawn
+# a "Herobrine" that vanishes the instant you look at it.
 troll-staff:
   enabled: true
   energy-cost: 15
   cooldown-ms: 1000
   radius: 24
+  herobrine:
+    energy-cost: 20
+    cooldown-ms: 8000
+    distance: 6            # blocks in front of / behind the player
+    behind-chance: 0.5     # chance he spawns behind you instead of in view
+    timeout-ticks: 200     # vanishes after this if never seen (20 = 1s)
+    # Skin shown on the floating head. Paste any "Herobrine" head texture URL from
+    # e.g. minecraft-heads.com; if blank/invalid it falls back to a default head.
+    skin-url: "http://textures.minecraft.net/texture/b66cc1aa3bdf5ede0b87b2c19e3864383888d69d9b4755694847030a5f89acb"
 
 # Warden Crossbow: right-click fires a sonic boom (3 with Multishot).
 warden-crossbow:
