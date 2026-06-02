@@ -265,27 +265,39 @@ public final class WardenWandListener implements Listener {
                 Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(2), Duration.ofMillis(500))));
 
         double auraRadius = plugin.getConfig().getDouble("warden-wand.boss.aura-radius", 12);
+        // Aura pulse only; this task self-cancels and never owns the revert.
         new BukkitRunnable() {
             int ticks = 0;
 
             @Override
             public void run() {
-                if (ticks >= duration || !player.isOnline() || !bossActive.contains(player.getUniqueId())) {
-                    revertBoss(player);
+                if (!bossActive.contains(player.getUniqueId()) || ticks >= duration || !player.isOnline()) {
                     cancel();
                     return;
                 }
                 if (ticks % 40 == 0) {
-                    for (Entity e : player.getWorld().getNearbyEntities(player.getLocation(), auraRadius, auraRadius, auraRadius)) {
-                        if (e instanceof LivingEntity living && !e.equals(player)) {
-                            living.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 80, 0));
+                    try {
+                        for (Entity e : player.getWorld().getNearbyEntities(player.getLocation(), auraRadius, auraRadius, auraRadius)) {
+                            if (e instanceof LivingEntity living && !e.equals(player)) {
+                                living.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 80, 0));
+                            }
                         }
+                    } catch (Exception ignored) {
+                        // Never let the aura kill the form.
                     }
                 }
                 ticks++;
             }
         }.runTaskTimer(plugin, 0L, 1L);
+        // Guaranteed revert when the form ends — independent of the aura task.
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> revertBoss(player), duration);
         ToolDamage.damageMainHand(player);
+    }
+
+    /** Safety net: revert if a boss-form player logs out. */
+    @EventHandler
+    public void onQuit(org.bukkit.event.player.PlayerQuitEvent event) {
+        revertBoss(event.getPlayer());
     }
 
     /** While in Warden Form, melee hits unleash a faked sonic boom. */
