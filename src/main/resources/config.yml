@@ -176,10 +176,14 @@ warden-wand:
     bats: 8
     damage: 1.0      # damage per second to enemies the bats swarm
   range:
+    # Jumpscare: a bat appears in the target's face, then vanishes, dealing
+    # 'damage' and leaving Darkness.
     energy-cost: 15
     cooldown-ms: 800
-    arrows: 3        # spectral arrows fired per use
-    arrow-damage: 4.0
+    distance: 24            # how far you can target
+    damage: 8.0
+    darkness-ticks: 200    # Darkness applied to the target (20 = 1s)
+    jumpscare-ticks: 12    # how long the bat lingers before it strikes
   boss:
     # Warden Form: bigger (scale), glowing, huge health, strength/speed, sonic boom.
     charge-fraction: 0.5   # fraction of full energy needed to transform

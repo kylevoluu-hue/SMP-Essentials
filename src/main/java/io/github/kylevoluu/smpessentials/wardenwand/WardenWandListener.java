@@ -51,7 +51,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-/** The Warden Wand: modes summon (attacking bats) / range (spectral volley) / boss (Warden Form). */
+/** The Warden Wand: modes summon (attacking bats) / range (bat jumpscare) / boss (Warden Form). */
 public final class WardenWandListener implements Listener {
 
     private static final String[] MODES = {"summon", "range", "boss"};
@@ -183,30 +183,42 @@ public final class WardenWandListener implements Listener {
     // --- range: a volley of spectral arrows --------------------------------
 
     private void range(Player player) {
+        int distance = plugin.getConfig().getInt("warden-wand.range.distance", 24);
+        LivingEntity target = aimedEnemy(player, distance);
+        if (target == null) {
+            player.sendActionBar(Component.text("No target in sight.").color(NamedTextColor.GRAY));
+            return;
+        }
         double cost = plugin.getConfig().getDouble("warden-wand.range.energy-cost", 15);
         long cd = plugin.getConfig().getLong("warden-wand.range.cooldown-ms", 800);
         if (!abilities.tryUse(player, "warden_range", cost, cd)) {
             return;
         }
-        int arrows = plugin.getConfig().getInt("warden-wand.range.arrows", 3);
-        Vector base = player.getEyeLocation().getDirection();
-        for (int i = 0; i < arrows; i++) {
-            double spread = (i - (arrows - 1) / 2.0) * 8.0;
-            SpectralArrow arrow = player.launchProjectile(SpectralArrow.class, rotateYaw(base, spread).multiply(2.2));
-            arrow.setGlowingTicks(200);
-            arrow.setCritical(true);
-            arrow.getPersistentDataContainer().set(Keys.WARDEN_ARROW, PersistentDataType.BYTE, (byte) 1);
-        }
-        player.getWorld().playSound(player.getLocation(), "minecraft:entity.warden.sonic_charge", 1.0f, 1.4f);
-        ToolDamage.damageMainHand(player);
-    }
+        double damage = plugin.getConfig().getDouble("warden-wand.range.damage", 8);
+        int darknessTicks = plugin.getConfig().getInt("warden-wand.range.darkness-ticks", 200);
+        long delay = plugin.getConfig().getLong("warden-wand.range.jumpscare-ticks", 12);
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
-    public void onArrowHit(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof SpectralArrow arrow
-                && arrow.getPersistentDataContainer().has(Keys.WARDEN_ARROW, PersistentDataType.BYTE)) {
-            event.setDamage(plugin.getConfig().getDouble("warden-wand.range.arrow-damage", 4));
+        // Spawn a bat right in the target's face (jumpscare), then it vanishes.
+        World world = target.getWorld();
+        Bat bat = world.spawn(target.getEyeLocation(), Bat.class);
+        bat.setAwake(true);
+        world.playSound(target.getEyeLocation(), "minecraft:entity.bat.takeoff", 1.2f, 0.6f);
+        if (target instanceof Player victim) {
+            victim.playSound(victim.getLocation(), "minecraft:entity.warden.nearby_closer", 1.0f, 1.0f);
         }
+
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (bat.isValid()) {
+                bat.getWorld().spawnParticle(Particle.CLOUD, bat.getLocation(), 20, 0.3, 0.3, 0.3, 0.02);
+                bat.remove();
+            }
+            if (target.isValid() && !target.isDead()) {
+                target.setNoDamageTicks(0);
+                target.damage(damage, player);
+                target.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, darknessTicks, 0));
+            }
+        }, delay);
+        ToolDamage.damageMainHand(player);
     }
 
     // --- boss: the Warden Form ---------------------------------------------
