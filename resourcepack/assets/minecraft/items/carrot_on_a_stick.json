@@ -1,0 +1,14 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "minecraft:custom_model_data",
+    "entries": [
+      { "threshold": 2, "model": { "type": "minecraft:model", "model": "minecraft:item/storm_scepter" } },
+      { "threshold": 3, "model": { "type": "minecraft:model", "model": "minecraft:item/warden_wand" } },
+      { "threshold": 4, "model": { "type": "minecraft:model", "model": "minecraft:item/ender_wand" } },
+      { "threshold": 5, "model": { "type": "minecraft:model", "model": "minecraft:item/troll_staff" } },
+      { "threshold": 6, "model": { "type": "minecraft:model", "model": "minecraft:item/cloning_cane" } }
+    ],
+    "fallback": { "type": "minecraft:model", "model": "minecraft:item/carrot_on_a_stick" }
+  }
+}

@@ -1,27 +1,58 @@
 # ============================================================================
 #  SMP Essentials configuration
 #  Every option is documented. After editing, run /smpe reload (or restart).
+# ----------------------------------------------------------------------------
+#  COMMANDS (alias: /smpessentials)
+#    /smpe give <pickaxe|axe|shovel|sword|bucket|blaze|wand> [player]  Give an Amethyst tool   (smpessentials.give)
+#    /smpe combat [player]              Show combat status      (smpessentials.combat.check)
+#    /smpe preset [list|<name>]         List / apply a preset   (smpessentials.reload)
+#    /smpe reload                       Reload this file        (smpessentials.reload)
+#
+#  PERMISSIONS
+#    smpessentials.*               All permissions (default: op)
+#    smpessentials.give            Use /smpe give (op)
+#    smpessentials.reload          Use /smpe reload and /smpe preset (op)
+#    smpessentials.combat.check    Use /smpe combat (everyone)
+#    smpessentials.combat.bypass   Exempt from combat tagging/penalties (nobody)
+# ----------------------------------------------------------------------------
+#  PRESETS
+#    'active-preset' selects a bundle of settings from the 'presets' section at
+#    the bottom of this file and applies it ON TOP of everything below.
+#      - custom  -> ignore presets, use the values written in this file as-is
+#      - default -> balanced settings (same as the defaults below)
+#      - hardcore-> harsher PvP and survival
+#      - casual  -> relaxed: no combat penalties, tools never wear out
+#    Switch live with /smpe preset <name> (temporary), or set it here + reload
+#    to make it permanent.
 # ============================================================================
+
+active-preset: custom
 
 amethyst-tools:
   # Master switch for the Amethyst pickaxe and axe abilities.
   enabled: true
-  # Register the crafting recipes (1 amethyst shard + 2 netherite ingots + sticks,
-  # in the vanilla diamond-tool layout). If false, tools are only obtainable via
-  # /smpe give.
+  # Register the crafting recipes. Every tool is expensive: 1 amethyst block +
+  # 2 netherite blocks (plus sticks for the pickaxe/axe). If false, tools are
+  # only obtainable via /smpe give.
   recipes-enabled: true
   # Play the amethyst block chime when an Amethyst tool is used to mine and when
   # a player selects one on their hotbar.
   sound-effects: true
 
   pickaxe:
-    # Apply durability damage to the tool for the extra blocks broken in the 3x3.
-    # Unbreaking enchantments are respected.
-    damage-tool: true
+    # Mining radius. 1 = 3x3, 2 = 5x5, etc. 0 disables the area effect.
+    radius: 1
+    # Charge extra durability for the extra blocks broken.
+    # false (default) = the tool only wears 1 point per swing, exactly like
+    # normal 1x1 mining. true = each extra block also costs durability.
+    # Unbreaking is respected either way.
+    damage-tool: false
 
   axe:
-    # Apply durability damage for each extra log felled. Unbreaking is respected.
-    damage-tool: true
+    # Charge extra durability for each extra log felled.
+    # false (default) = the tool only wears 1 point per chop, like normal 1x1
+    # mining. true = each extra log also costs durability. Unbreaking respected.
+    damage-tool: false
     # Safety cap on how many logs a single break may fell (prevents lag on huge
     # custom/jungle trees).
     max-logs: 256
@@ -29,22 +60,237 @@ amethyst-tools:
     # leaves decay on their own).
     break-leaves: false
 
+  shovel:
+    # Dig radius. 2 = 5x5 (default), 1 = 3x3, 0 disables. Only shovel-appropriate
+    # blocks (dirt, sand, gravel, etc.) are dug.
+    radius: 2
+    # Same meaning as pickaxe.damage-tool (false = 1x1 wear rate).
+    damage-tool: false
+
+  sword:
+    # Bonus damage dealt by the dripstone that falls onto your target (the sword's
+    # base attack damage is 10, set on the item itself). 0 = dripstone is visual only.
+    dripstone-damage: 6.0
+    # How many blocks above the target the dripstone spawns.
+    dripstone-height: 5
+
+  bucket:
+    # Safety cap on how many fluid blocks a single right-click may drain from a
+    # connected pool (prevents draining an entire ocean and lagging the server).
+    # Stored amounts themselves are unlimited.
+    max-drain-blocks: 1024
+
+# The Blaze Sword (gold-sword design; base attack damage 12 is set on the item).
+blaze-sword:
+  enabled: true
+  # How long (in ticks, 20 = 1s) the target burns when hit. 0 = no fire.
+  fire-ticks: 100
+  # Extra damage dealt by the fireball that is shot on each hit.
+  fireball-damage: 8.0
+  # Whether the shot fireball sets blocks alight where it lands (off by default to
+  # avoid accidental fires; the sword/fireball still ignite entities directly).
+  incendiary: false
+
+# The Blaze Wand (blaze-rod design). Right-click to use the current mode, sneak +
+# right-click to cycle modes (summon -> range -> bow).
+blaze-wand:
+  enabled: true
+  # Minimum delay (milliseconds) between wand uses, to prevent spam.
+  cooldown-ms: 750
+  summon:
+    # How long the summoned blaze lives before it despawns.
+    seconds: 6
+  range:
+    # How many fireballs are fired per use, and the gap (ticks) between them.
+    fireballs: 5
+    interval-ticks: 5
+    # Damage per fireball hit (6.0 = 3 hearts).
+    fireball-damage: 6.0
+  bow:
+    # Fuse length, launch speed, and how long things it hits burn.
+    fuse-ticks: 40
+    speed: 1.6
+    fire-ticks: 100
+
+# The Storm Rod (lightning-rod design): right-click to call down lightning.
+storm-rod:
+  enabled: true
+  # Minimum delay (milliseconds) between uses.
+  cooldown-ms: 1500
+  # How far the targeting ray reaches.
+  range: 40
+  # Bonus damage to living entities near the strike (vanilla lightning also hits).
+  extra-damage: 4.0
+  # Also smite whatever you hit in melee with this rod.
+  melee-strike: true
+
+# Shared "ability energy" used by the ability items (Warden Crossbow, Storm
+# Scepter, Warden/Ender Wand, Troll Staff, Cloning Cane). Each ability use costs
+# energy; it regenerates over time and shows as a boss bar while you hold one.
+abilities:
+  max-energy: 100
+  regen-per-second: 10
+  bossbar: true
+
+# The Troll Staff: right-click = random eerie sound; sneak + right-click = spawn
+# a "Herobrine" that vanishes the instant you look at it.
+troll-staff:
+  enabled: true
+  energy-cost: 15
+  cooldown-ms: 1000
+  radius: 24
+  herobrine:
+    energy-cost: 20
+    cooldown-ms: 8000
+    distance: 6            # blocks in front of / behind the player
+    behind-chance: 0.5     # chance he spawns behind you instead of in view
+    timeout-ticks: 200     # vanishes after this if never seen (20 = 1s)
+    # Skin shown on the floating head. Paste any "Herobrine" head texture URL from
+    # e.g. minecraft-heads.com; if blank/invalid it falls back to a default head.
+    skin-url: "http://textures.minecraft.net/texture/b66cc1aa3bdf5ede0b87b2c19e3864383888d69d9b4755694847030a5f89acb"
+
+# Warden Crossbow: right-click fires a sonic boom (3 with Multishot).
+warden-crossbow:
+  enabled: true
+  energy-cost: 25
+  cooldown-ms: 1500
+  range: 24
+  damage: 10.0
+  knockback: 1.2
+
+# Storm Scepter: lightning bow / sunken / vex-summon (sneak to switch).
+storm-scepter:
+  enabled: true
+  lightning:
+    energy-cost: 20
+    cooldown-ms: 1200
+    range: 40
+  sunken:
+    energy-cost: 30
+    cooldown-ms: 4000
+    damage: 8.0
+  summon:
+    energy-cost: 35
+    cooldown-ms: 6000
+    seconds: 20
+    vex-damage: 2.0
+
+# Warden Wand: attacking bats / spectral volley / Warden Form (sneak to switch).
+warden-wand:
+  enabled: true
+  summon:
+    energy-cost: 30
+    cooldown-ms: 5000
+    seconds: 8
+    radius: 8
+    bats: 8
+    damage: 1.0      # damage per second to enemies the bats swarm
+  range:
+    # Jumpscare: a bat appears in the target's face, then vanishes, dealing
+    # 'damage' and leaving Darkness.
+    energy-cost: 15
+    cooldown-ms: 800
+    distance: 24            # how far you can target
+    damage: 8.0
+    darkness-ticks: 200    # Darkness applied to the target (20 = 1s)
+    jumpscare-ticks: 12    # how long the bat lingers before it strikes
+  boss:
+    # Warden Form: bigger (scale), glowing, huge health, strength/speed, sonic boom.
+    charge-fraction: 0.5   # fraction of full energy needed to transform
+    cooldown-ms: 60000
+    seconds: 45
+    bonus-health: 40.0
+    scale-bonus: 0.8       # added to the 1.0 base scale (so ~1.8x size)
+    aura-radius: 12
+    sonic-damage: 8.0
+
+# Ender Wand: ender pearls / wither-levitation / mini-dragon (sneak to switch).
+ender-wand:
+  enabled: true
+  pearls:
+    energy-cost: 10
+    cooldown-ms: 600
+  ranged:
+    energy-cost: 20
+    cooldown-ms: 1500
+    wither-ticks: 140
+    wither-amplifier: 1     # Wither II is clearly visible/damaging
+    levitation-ticks: 60
+    radius: 3.5             # impact AoE so wither+levitation reliably land
+    cloud-ticks: 100
+  summon:
+    enabled: true        # spawns a real ender dragon (destructive; approximate)
+    energy-cost: 50
+    cooldown-ms: 15000
+    seconds: 6
+    damage: 10.0
+
+# Cloning Cane: confusion decoys / exploding clones; count scales with mob kills.
+cloning-cane:
+  enabled: true
+  energy-cost: 25
+  cooldown-ms: 3000
+  kills-per-clone: 20
+  max-clones: 5
+  confusion:
+    life-ticks: 100
+  explode:
+    power: 2.0
+    fuse-ticks: 100      # clones chase enemies, then detonate (or after this fuse)
+
+# Optionally have the plugin send the resource pack to players on join (instead of
+# editing server.properties). Sending on join avoids the server.properties
+# "error during configuration" pitfall. The client still downloads it from 'url'.
+resource-pack:
+  push-on-join: false
+  url: "https://github.com/kylevoluu-hue/SMP-Essentials/releases/download/latest/SMPEssentials-ResourcePack.zip"
+  # Optional 40-char SHA-1 of the zip (from the release notes). Needed for the
+  # 'required' kick-on-decline behaviour; leave blank to just prompt.
+  sha1: ""
+  # If true (and sha1 is set), players who decline are kicked.
+  required: false
+
 combat:
   # Master switch for the anti-combat-log system.
   enabled: true
-  # How long (in seconds) a player stays "in combat" after being hit. Each new
-  # hit from another player resets this back to the full duration.
+  # How long (in seconds) a player stays "in combat" after being hit by another
+  # player. The timer is ONLY started by player-vs-player damage (melee or a
+  # player-fired projectile) and resets to this full value on every new hit.
   duration-seconds: 20
-  # Tag players when they fight other players (recommended true).
-  tag-on-pvp: true
-  # Also tag players when they take damage from hostile mobs. Off by default so
-  # players are only punished for logging during PvP.
-  tag-on-mob-damage: false
   # When a tagged player disconnects, drop their experience as orbs at the
   # logout location (in addition to their items).
   drop-experience: true
-  # Block the commands below while a player is in combat.
+
+  # ------------------------------------------------------------------------
+  #  WHAT IS DISABLED WHILE IN COMBAT
+  #  Each restriction below is an independent on/off toggle. Edit them here, or
+  #  override any of them (including the lists) inside a preset.
+  # ------------------------------------------------------------------------
+  # Block the commands in 'blocked-commands' while in combat.
   block-commands: true
+  # Block teleports whose cause is in 'blocked-teleport-causes' while in combat
+  # (covers COMMAND/PLUGIN/SPECTATE etc. - the specific transport types below
+  # have their own dedicated toggles).
+  block-teleports: true
+  # Prevent gliding away with an elytra while in combat.
+  block-elytra: false
+  # Cancel flight (e.g. creative/allow-flight) while in combat.
+  block-flight: false
+  # Prevent boarding boats/minecarts/horses/pigs/striders/camels/llamas/etc.
+  # (mounting) while in combat.
+  block-mounting: false
+  # Prevent leaving a vehicle (boat/minecart) while in combat. Combined with
+  # block-mounting, players can't use vehicles to escape a fight.
+  block-dismounting: false
+  # Block ender pearl teleports while in combat.
+  block-ender-pearl: false
+  # Block chorus fruit teleports while in combat.
+  block-chorus-fruit: false
+  # Block end gateway teleports while in combat.
+  block-end-gateway: false
+  # Block the teleport that happens when leaving a bed, while in combat.
+  block-exit-bed: false
+
   # Commands (without the leading slash) that cannot be used while in combat.
   # Matching is by the root command, so "tpa" also blocks "/tpa Steve".
   blocked-commands:
@@ -67,19 +313,26 @@ combat:
     - lobby
     - hub
     - server
-  # Teleport causes that are cancelled while a player is in combat. This is a
-  # catch-all that stops teleports from ANY plugin regardless of command name.
-  # ENDER_PEARL and CHORUS_FRUIT are intentionally NOT listed, so those remain
-  # usable in a fight. Valid values are org.bukkit PlayerTeleportEvent.TeleportCause
-  # names, e.g. COMMAND, PLUGIN, SPECTATE, ENDER_PEARL, CHORUS_FRUIT, END_PORTAL.
+    - bed
+  # Generic teleport causes cancelled while in combat (used when 'block-teleports'
+  # is on). Ender pearl, chorus fruit, end gateway and exit-bed have their own
+  # dedicated toggles above, so this list is mainly for the rest. Any valid
+  # PlayerTeleportEvent.TeleportCause name works here:
+  #   COMMAND, PLUGIN, SPECTATE, ENDER_PEARL, CHORUS_FRUIT, NETHER_PORTAL,
+  #   END_PORTAL, END_GATEWAY, DISMOUNT_PLAYER, EXIT_BED, UNKNOWN
   blocked-teleport-causes:
     - COMMAND
     - PLUGIN
     - SPECTATE
   # When a player who combat-logged reconnects, teleport them to the world spawn.
   teleport-to-spawn-on-rejoin: true
-  # Show a combat countdown on the action bar.
+  # Show a combat countdown on the action bar (text above the hotbar).
   action-bar: true
+  # Show a combat countdown boss bar (the bar at the top of the screen) that
+  # drains as the timer runs out.
+  boss-bar: true
+  # Boss bar colour: RED, PINK, BLUE, GREEN, YELLOW, PURPLE or WHITE.
+  boss-bar-color: RED
 
 messages:
   # &-style color codes are supported (translated to Adventure components).
@@ -91,11 +344,76 @@ messages:
   combat-entered: "&cYou are now in combat! Do not log out for {seconds}s."
   combat-expired: "&aYou are no longer in combat."
   combat-action-bar: "&c⚔ In combat: &f{seconds}s"
+  combat-boss-bar: "&c⚔ Combat &f{seconds}s"
   combat-command-blocked: "&cYou cannot use &e/{command}&c while in combat!"
   combat-teleport-blocked: "&cYou cannot teleport while in combat!"
+  combat-elytra-blocked: "&cYou cannot use an elytra while in combat!"
+  combat-flight-blocked: "&cYou cannot fly while in combat!"
+  combat-mount-blocked: "&cYou cannot ride vehicles while in combat!"
+  combat-dismount-blocked: "&cYou cannot dismount while in combat!"
   combat-log-broadcast: "&e{player} &ctried to combat log and was slain! Their loot was dropped."
   combat-log-rejoin: "&cYou logged out during combat and were slain. Your items were dropped where you left."
   combat-status-self: "&7You are in combat for &c{seconds}s&7."
   combat-status-self-none: "&7You are not in combat."
   combat-status-other: "&e{player} &7is in combat for &c{seconds}s&7."
   combat-status-other-none: "&e{player} &7is not in combat."
+  bed-teleported: "&aTeleported to your bed."
+  bed-none: "&cYou don't have a bed set! Sleep in a bed to set your spawn first."
+  bucket-mode-switched: "&aNow pouring &e{mode}&a."
+  bucket-collected: "&aDrained &e{amount}&a {fluid} into your Amethyst Bucket."
+  bucket-placed: "&aPoured {fluid}."
+  bucket-empty: "&cYour Amethyst Bucket has no {fluid} stored."
+  wand-mode-switched: "&6Wand mode: &e{mode}&6."
+
+# ============================================================================
+#  PRESETS
+#  Each preset below lists only the settings it changes; anything it omits keeps
+#  the value from the main config above. Selected via 'active-preset' at the top
+#  of this file (or /smpe preset <name>). Feel free to add your own presets here.
+# ============================================================================
+presets:
+
+  # Balanced defaults (identical to the values above).
+  default:
+    amethyst-tools:
+      pickaxe:
+        damage-tool: false
+      axe:
+        damage-tool: false
+        break-leaves: false
+    combat:
+      enabled: true
+      duration-seconds: 20
+      teleport-to-spawn-on-rejoin: true
+
+  # Harsher PvP and survival: longer combat window, no escaping by flight,
+  # gliding, riding, pearling or chorus fruit, and trees drop their leaves.
+  hardcore:
+    amethyst-tools:
+      axe:
+        break-leaves: true
+    combat:
+      enabled: true
+      duration-seconds: 30
+      drop-experience: true
+      teleport-to-spawn-on-rejoin: true
+      block-commands: true
+      block-teleports: true
+      block-elytra: true
+      block-flight: true
+      block-mounting: true
+      block-ender-pearl: true
+      block-chorus-fruit: true
+      block-end-gateway: true
+
+  # Relaxed: no combat-log penalties at all, and the Amethyst tools never lose
+  # durability.
+  casual:
+    amethyst-tools:
+      pickaxe:
+        damage-tool: false
+      axe:
+        damage-tool: false
+        break-leaves: true
+    combat:
+      enabled: false

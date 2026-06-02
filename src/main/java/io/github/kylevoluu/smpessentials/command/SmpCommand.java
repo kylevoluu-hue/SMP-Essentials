@@ -42,9 +42,39 @@ public final class SmpCommand implements CommandExecutor, TabCompleter {
             case "give" -> handleGive(sender, args);
             case "reload" -> handleReload(sender);
             case "combat" -> handleCombat(sender, args);
+            case "preset" -> handlePreset(sender, args);
             default -> sendUsage(sender, label);
         }
         return true;
+    }
+
+    private void handlePreset(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("smpessentials.reload")) {
+            sender.sendMessage(messages.prefixed("no-permission"));
+            return;
+        }
+        // "/smpe preset" or "/smpe preset list" -> show active + available presets.
+        if (args.length < 2 || args[1].equalsIgnoreCase("list")) {
+            sender.sendMessage(net.kyori.adventure.text.Component.text(
+                    "Active preset: " + plugin.activePreset()));
+            sender.sendMessage(net.kyori.adventure.text.Component.text(
+                    "Available: " + String.join(", ", plugin.presetNames()) + ", custom"));
+            return;
+        }
+        String name = args[1].toLowerCase(Locale.ROOT);
+        if (name.equals("custom") || name.equals("none")) {
+            sender.sendMessage(net.kyori.adventure.text.Component.text(
+                    "Set 'active-preset: custom' in config.yml and run /smpe reload to use your own values."));
+            return;
+        }
+        if (plugin.applyPresetByName(name)) {
+            sender.sendMessage(net.kyori.adventure.text.Component.text(
+                    "Applied preset '" + name + "'. Set 'active-preset: " + name
+                            + "' in config.yml to make it permanent."));
+        } else {
+            sender.sendMessage(net.kyori.adventure.text.Component.text(
+                    "Unknown preset '" + name + "'. Try /smpe preset list."));
+        }
     }
 
     private void handleGive(CommandSender sender, String[] args) {
@@ -54,12 +84,13 @@ public final class SmpCommand implements CommandExecutor, TabCompleter {
         }
         if (args.length < 2) {
             sender.sendMessage(messages.prefixed("combat-status-self-none"));
-            sender.sendMessage(net.kyori.adventure.text.Component.text("Usage: /smpe give <pickaxe|axe> [player]"));
+            sender.sendMessage(net.kyori.adventure.text.Component.text("Usage: /smpe give <pickaxe|axe|shovel|sword|bucket|blaze|wand> [player]"));
             return;
         }
         AmethystToolType type = AmethystToolType.fromArgument(args[1]);
         if (type == null) {
-            sender.sendMessage(net.kyori.adventure.text.Component.text("Unknown tool. Use 'pickaxe' or 'axe'."));
+            sender.sendMessage(net.kyori.adventure.text.Component.text(
+                    "Unknown tool. Use: pickaxe, axe, shovel, sword, bucket, blaze or wand."));
             return;
         }
 
@@ -124,8 +155,9 @@ public final class SmpCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendUsage(CommandSender sender, String label) {
-        sender.sendMessage(net.kyori.adventure.text.Component.text("/" + label + " give <pickaxe|axe> [player]"));
+        sender.sendMessage(net.kyori.adventure.text.Component.text("/" + label + " give <pickaxe|axe|shovel|sword|bucket|blaze|wand> [player]"));
         sender.sendMessage(net.kyori.adventure.text.Component.text("/" + label + " combat [player]"));
+        sender.sendMessage(net.kyori.adventure.text.Component.text("/" + label + " preset [list|<name>]"));
         sender.sendMessage(net.kyori.adventure.text.Component.text("/" + label + " reload"));
     }
 
@@ -133,17 +165,23 @@ public final class SmpCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> out = new ArrayList<>();
         if (args.length == 1) {
-            for (String sub : List.of("give", "combat", "reload")) {
+            for (String sub : List.of("give", "combat", "preset", "reload")) {
                 if (sub.startsWith(args[0].toLowerCase(Locale.ROOT))) {
                     out.add(sub);
                 }
             }
         } else if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
-            for (String tool : List.of("pickaxe", "axe")) {
+            for (String tool : List.of("pickaxe", "axe", "shovel", "sword", "bucket", "blaze", "wand",
+                    "storm", "crossbow", "scepter", "warden", "ender", "troll", "cane")) {
                 if (tool.startsWith(args[1].toLowerCase(Locale.ROOT))) {
                     out.add(tool);
                 }
             }
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("preset")) {
+            out.add("list");
+            out.addAll(plugin.presetNames());
+            out.add("custom");
+            out.removeIf(s -> !s.toLowerCase(Locale.ROOT).startsWith(args[1].toLowerCase(Locale.ROOT)));
         } else if (args.length == 3 && args[0].equalsIgnoreCase("give")
                 || args.length == 2 && args[0].equalsIgnoreCase("combat")) {
             for (Player player : Bukkit.getOnlinePlayers()) {

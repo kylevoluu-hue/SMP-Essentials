@@ -2,11 +2,20 @@ package io.github.kylevoluu.smpessentials.tools;
 
 import io.github.kylevoluu.smpessentials.keys.Keys;
 import io.github.kylevoluu.smpessentials.util.Text;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.components.CustomModelDataComponent;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
@@ -43,8 +52,62 @@ public final class AmethystToolFactory {
         // Mark the item so listeners/commands can identify it regardless of name edits.
         meta.getPersistentDataContainer().set(Keys.TOOL, PersistentDataType.STRING, type.markerValue());
 
+        if (type == AmethystToolType.SWORD) {
+            applySwordAttributes(meta, 10.0);
+        } else if (type == AmethystToolType.BLAZE_SWORD) {
+            applySwordAttributes(meta, 12.0);
+            // Gold sword base only has 32 durability; give it a netherite lifespan.
+            if (meta instanceof Damageable damageable) {
+                damageable.setMaxDamage((int) Material.NETHERITE_SWORD.getMaxDurability());
+            }
+        }
+
+        // Custom model data (resource-pack texture) for the ability items.
+        if (type.customModelData() > 0) {
+            CustomModelDataComponent cmd = meta.getCustomModelDataComponent();
+            cmd.setFloats(List.of((float) type.customModelData()));
+            meta.setCustomModelDataComponent(cmd);
+        }
+        // Overridden durability (e.g. 1.5x netherite) on a damageable base.
+        if (type.maxDurability() > 0 && meta instanceof Damageable damageable) {
+            damageable.setMaxDamage(type.maxDurability());
+        }
+
         item.setItemMeta(meta);
+
+        if (type == AmethystToolType.BUCKET) {
+            AmethystBucket.initialize(item);
+        } else if (type == AmethystToolType.BLAZE_WAND) {
+            BlazeWand.initialize(item);
+        }
         return item;
+    }
+
+    /**
+     * Give a custom sword the requested base attack damage (player base is 1, so
+     * the modifier is base - 1) and a normal sword swing speed. Setting modifiers
+     * via the API replaces the material's defaults, so we set both. Crits and
+     * Sharpness still scale on top.
+     */
+    private static void applySwordAttributes(ItemMeta meta, double baseDamage) {
+        Attribute attackDamage = attribute("attack_damage");
+        Attribute attackSpeed = attribute("attack_speed");
+        if (attackDamage != null) {
+            meta.addAttributeModifier(attackDamage, new AttributeModifier(
+                    Keys.SWORD_ATTACK_DAMAGE, baseDamage - 1.0,
+                    AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+        }
+        if (attackSpeed != null) {
+            meta.addAttributeModifier(attackSpeed, new AttributeModifier(
+                    Keys.SWORD_ATTACK_SPEED, -2.4,
+                    AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+        }
+    }
+
+    private static Attribute attribute(String key) {
+        return RegistryAccess.registryAccess()
+                .getRegistry(RegistryKey.ATTRIBUTE)
+                .get(NamespacedKey.minecraft(key));
     }
 
     /** Return the Amethyst tool type of an item, or {@code null} if it is not one. */
