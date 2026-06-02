@@ -20,15 +20,24 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class TrollStaffListener implements Listener {
 
     private static final String[] SOUNDS = {
-            "minecraft:entity.warden.emerge",
             "minecraft:ambient.cave",
+            "minecraft:entity.warden.emerge",
+            "minecraft:entity.warden.nearby_closer",
+            "minecraft:entity.warden.heartbeat",
+            "minecraft:entity.warden.listening_angry",
             "minecraft:entity.creeper.primed",
             "minecraft:entity.generic.explode",
-            "minecraft:block.stone.break",
-            "minecraft:block.stone.place",
-            "minecraft:entity.player.hurt",
+            "minecraft:entity.enderman.scream",
+            "minecraft:entity.enderman.stare",
+            "minecraft:entity.ghast.scream",
+            "minecraft:entity.wither.spawn",
+            "minecraft:entity.elder_guardian.curse",
             "minecraft:block.sculk_shrieker.shriek",
-            "minecraft:entity.warden.nearby_closer"
+            "minecraft:ambient.soul_sand_valley.mood",
+            "minecraft:ambient.basalt_deltas.mood",
+            "minecraft:ambient.crimson_forest.mood",
+            "minecraft:entity.skeleton.step",
+            "minecraft:block.deepslate.break"
     };
 
     private final Plugin plugin;
@@ -57,11 +66,14 @@ public final class TrollStaffListener implements Listener {
         }
 
         String sound = SOUNDS[ThreadLocalRandom.current().nextInt(SOUNDS.length)];
+        // A lower, slightly random pitch makes the sound creepier each time.
+        float pitch = 0.6f + ThreadLocalRandom.current().nextFloat() * 0.5f;
         double radius = plugin.getConfig().getDouble("troll-staff.radius", 24);
         double radiusSq = radius * radius;
         for (Player nearby : player.getWorld().getPlayers()) {
             if (nearby.getLocation().distanceSquared(player.getLocation()) <= radiusSq) {
-                nearby.playSound(nearby.getLocation(), sound, 1.0f, 1.0f);
+                // Play at the listener's own location so it sounds right next to them.
+                nearby.playSound(nearby.getLocation(), sound, 1.0f, pitch);
             }
         }
         ToolDamage.damageMainHand(player);

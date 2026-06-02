@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -103,11 +104,11 @@ public final class CloningCaneListener implements Listener {
 
     private ArmorStand baseClone(Player player) {
         Location loc = player.getLocation().add(rand(), 0, rand());
+        boolean fullArmor = hasFullArmor(player);
         ArmorStand stand = player.getWorld().spawn(loc, ArmorStand.class, s -> {
             s.setArms(true);
             s.setBasePlate(false);
-            s.customName(player.name());
-            s.setCustomNameVisible(true);
+            s.setVisible(false);          // body invisible; only equipment shows
             s.setCanPickupItems(false);
             s.setInvulnerable(true);
             s.setRotation(player.getLocation().getYaw(), 0);
@@ -119,14 +120,24 @@ public final class CloningCaneListener implements Listener {
                     eq.setBoots(armor[0]);
                     eq.setLeggings(armor[1]);
                     eq.setChestplate(armor[2]);
-                    // Helmet = the player's actual head (their skin) so it reads as a clone.
-                    eq.setHelmet(armor[3] != null && !armor[3].getType().isAir() ? armor[3] : playerHead(player));
                 }
+                // Full armor -> show only the floating armor. Otherwise wear the
+                // player's own skin head so the clone shows their face.
+                eq.setHelmet(fullArmor ? player.getInventory().getHelmet() : playerHead(player));
                 eq.setItemInMainHand(weaponLike(player));
             }
         });
         player.getWorld().spawnParticle(Particle.CLOUD, loc.clone().add(0, 1, 0), 15, 0.3, 0.6, 0.3, 0.02);
         return stand;
+    }
+
+    private boolean hasFullArmor(Player player) {
+        for (ItemStack piece : player.getInventory().getArmorContents()) {
+            if (piece == null || piece.getType().isAir()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private ItemStack playerHead(Player player) {
@@ -179,9 +190,19 @@ public final class CloningCaneListener implements Listener {
                 LivingEntity target = nearestEnemy(stand.getLocation(), player, 24);
                 boolean reached = false;
                 if (target != null) {
-                    Vector dir = target.getLocation().add(0, 0.5, 0).toVector().subtract(stand.getLocation().toVector());
-                    if (dir.lengthSquared() > 0.01) {
-                        stand.setVelocity(dir.normalize().multiply(0.5));
+                    Vector flat = target.getLocation().toVector().subtract(stand.getLocation().toVector()).setY(0);
+                    if (flat.lengthSquared() > 0.01) {
+                        Vector dir = flat.normalize();
+                        double yVel = stand.getVelocity().getY();
+                        // Jump over blocks / up to a higher target.
+                        if (stand.isOnGround()) {
+                            Block ahead = stand.getLocation().add(dir).getBlock();
+                            if (ahead.getType().isSolid()
+                                    || target.getLocation().getY() > stand.getLocation().getY() + 1.0) {
+                                yVel = 0.5;
+                            }
+                        }
+                        stand.setVelocity(dir.multiply(0.45).setY(yVel));
                     }
                     reached = stand.getLocation().distanceSquared(target.getLocation()) <= 4;
                 }
