@@ -23,6 +23,10 @@
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>citizens</id>
+            <url>https://maven.citizensnpcs.co/repo</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -32,6 +36,19 @@
             <!-- Dynamic range resolves the latest 26.1.2 build -->
             <version>[26.1.2.build,)</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- Optional: full-body NPCs for clones / Herobrine (soft-depend at runtime) -->
+        <dependency>
+            <groupId>net.citizensnpcs</groupId>
+            <artifactId>citizens-main</artifactId>
+            <version>2.0.35-SNAPSHOT</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

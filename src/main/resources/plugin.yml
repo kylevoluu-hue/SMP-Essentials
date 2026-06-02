@@ -6,6 +6,7 @@ author: gangymanny6741
 description: Amethyst tools (3x3 pickaxe, tree-felling axe) and anti-combat-log for your SMP.
 website: https://github.com/kylevoluu-hue/smp-essentials
 folia-supported: false
+softdepend: [Citizens]
 
 commands:
   smpe:
